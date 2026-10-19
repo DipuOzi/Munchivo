@@ -458,8 +458,8 @@ function HomeTab() {
         <ImageField label="Main image" value={home.experienceImage} onChange={(experienceImage) => set({ experienceImage })} />
         <TextField label="Main image description (alt text)" value={home.experienceImageAlt} onChange={(experienceImageAlt) => set({ experienceImageAlt })} />
         <AdminGrid>
-          <TextField label="Small card image 1" value={home.experienceCardOneImage} onChange={(experienceCardOneImage) => set({ experienceCardOneImage })} />
-          <TextField label="Small card image 2" value={home.experienceCardTwoImage} onChange={(experienceCardTwoImage) => set({ experienceCardTwoImage })} />
+          <ImageField label="Small card image 1" value={home.experienceCardOneImage} onChange={(experienceCardOneImage) => set({ experienceCardOneImage })} />
+          <ImageField label="Small card image 2" value={home.experienceCardTwoImage} onChange={(experienceCardTwoImage) => set({ experienceCardTwoImage })} />
         </AdminGrid>
         <AdminGrid>
           <TextField label="Eyebrow" value={home.experienceEyebrow} onChange={(experienceEyebrow) => set({ experienceEyebrow })} />
