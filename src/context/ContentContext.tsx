@@ -73,6 +73,20 @@ function migrateLogo(content: SiteContent): SiteContent {
   return migrated;
 }
 
+/**
+ * Adopts the published server content while keeping reviews that were
+ * submitted on this device (they live in local storage until an admin
+ * publishes them). Server entries always win on identity.
+ */
+function mergeServerContent(current: SiteContent, incoming: SiteContent): SiteContent {
+  const serverIds = new Set(incoming.reviews.list.map((review) => review.id));
+  const localOnly = current.reviews.list.filter((review) => !serverIds.has(review.id));
+  const reviews = localOnly.length
+    ? { ...incoming.reviews, list: [...incoming.reviews.list, ...localOnly] }
+    : incoming.reviews;
+  return { ...incoming, reviews };
+}
+
 function loadContent(): SiteContent {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -91,8 +105,7 @@ function loadContent(): SiteContent {
 /* and small paths — uploading images no longer fills the browser storage.   */
 /* ------------------------------------------------------------------------ */
 
-/** Serializes in-memory URLs back into reference/storage-friendly form. */
-function toPersistence(value: unknown, outRefs: Set<string>): unknown {
+/** Serializes in-memory URLs back into reference/storage-friendly form. */function toPersistence(value: unknown, outRefs: Set<string>): unknown {
   if (typeof value === "string") {
     if (value.startsWith("blob:")) {
       const ref = refForUrl(value);
@@ -151,6 +164,29 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [content, setContentState] = useState<SiteContent>(loadContent);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Server sync: the published content JSON (committed to the repo by the
+  // admin panel) is the shared source of truth. It fills any browser that has
+  // never saved content locally, and refreshes stale local copies. Reviews
+  // submitted on this device are preserved through the merge.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      let serverValue: unknown = null;
+      try {
+        const response = await fetch("/content/site-content.json", { cache: "no-store" });
+        if (response.ok) serverValue = await response.json();
+      } catch {
+        // Offline or file not committed yet — local content stays in charge.
+      }
+      if (cancelled || !serverValue) return;
+      const serverContent = migrateLogo(mergeContent(serverValue));
+      setContentState((current) => mergeServerContent(current, serverContent));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // One-time hydration after mount: move stored refs into display URLs and
   // pull any legacy inline data-URL images into IndexedDB so they stop
   // bloating localStorage.
@@ -167,7 +203,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       } catch {
         // Little to do if this fails; the autosave error surface will report.
       }
-      await pruneImages(refs);
+      // Server-committed content uses /uploads paths — no local blobs to prune.
+      if (refs.size > 0) await pruneImages(refs);
     })();
     return () => {
       cancelled = true;
@@ -182,7 +219,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
       setSaveError(null);
       // Best-effort cleanup: drop uploads nothing references any more.
-      void pruneImages(refs);
+      // (An all-`/uploads` content is repo-committed; nothing to prune locally.)
+      if (refs.size > 0) void pruneImages(refs);
     } catch {
       setSaveError("Could not save — browser storage is full. Try removing a large uploaded image (Remove button on its image field), then save again.");
     }

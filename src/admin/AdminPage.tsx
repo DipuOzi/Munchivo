@@ -4,9 +4,10 @@ import { useContent } from "../context/ContentContext";
 import { DEFAULT_CONTENT, type Product, type Review, type SiteContent, type TeamMember } from "../content/defaults";
 import { AdminGrid, AdminSection, ImageField, ListControls, TextAreaField, TextField } from "./fields";
 import { fitContentForStorage, estimateContentBytes } from "./imageUpload";
+import { ADMIN_CODE } from "./adminCode";
+import { onPublishStatus, requestPublish, requestPublishNow, type PublishState } from "./publish";
 import "./admin.css";
 
-const ADMIN_CODE = "SAD1999";
 const AUTH_KEY = "munchivo-admin-auth-v1";
 
 type TabId = "home" | "menu" | "about" | "contact" | "order" | "products" | "team" | "reviews" | "settings";
@@ -158,6 +159,27 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Publish status line                                                 */
+/* ------------------------------------------------------------------ */
+
+function publishStatusText(publishState: PublishState, saveStatus: "idle" | "saving" | "saved"): string {
+  switch (publishState.state) {
+    case "uploading":
+      return "Saved · uploading images to the repository…";
+    case "committing":
+      return "Saved · pushing to the live site…";
+    case "published":
+      return "Saved · live site updates in 1–2 min";
+    case "local-only":
+      return "Saved locally (dev preview — publishing runs on the live site)";
+    case "failed":
+      return `Saved locally · publish failed: ${publishState.message ?? "unknown error"}`;
+    default:
+      return saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "All changes saved" : "No changes yet";
+  }
+}
+
 function AdminEditor({
   content,
   setContent,
@@ -174,10 +196,23 @@ function AdminEditor({
   const [draft, setDraft] = useState<SiteContent>(content);
   const [tab, setTab] = useState<TabId>("home");
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [publishState, setPublishState] = useState<PublishState>({ state: "idle" });
   const [flash, setFlash] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const importRef = useRef<HTMLInputElement | null>(null);
   const lastShrinkSize = useRef<number | null>(null);
+  const lastSeenContent = useRef(content);
+
+  // Adopt refreshed content (e.g. after the server sync load) unless the
+  // admin has unsaved edits — those always win and publish on their own.
+  useEffect(() => {
+    const previous = lastSeenContent.current;
+    lastSeenContent.current = content;
+    if (previous !== content) setDraft((current) => (current === previous ? content : current));
+  }, [content]);
+
+  // Subscribe to the publish pipeline (Git commit -> Vercel rebuild).
+  useEffect(() => onPublishStatus(setPublishState), []);
 
   // Autosave: changes are pushed to the live site after a short pause.
   // If the content no longer fits browser storage, stored images are
@@ -200,6 +235,9 @@ function AdminEditor({
         lastShrinkSize.current = null;
         setContent(draft);
         setStatus("saved");
+        // The local save is done — now push the content (and any new uploads)
+        // to the repository so every browser on the live site sees it too.
+        requestPublish(draft);
       })();
     }, 450);
     return () => {
@@ -266,8 +304,13 @@ function AdminEditor({
             </div>
             <div className="adm-top-actions">
               <span className={`adm-save-status ${statusClass}`} role="status">
-                {saveError ?? (status === "saving" ? "Saving…" : status === "saved" ? "All changes saved" : "No changes yet")}
+                {saveError ?? publishStatusText(publishState, status)}
               </span>
+              {publishState.state === "failed" && (
+                <button type="button" className="adm-btn adm-btn--cream adm-btn--small" onClick={() => requestPublishNow(draft)}>
+                  <RotateCcw size={15} aria-hidden="true" /> Retry publish
+                </button>
+              )}
               <a className="adm-btn adm-btn--cream adm-btn--small" href="#/">
                 <ExternalLink size={15} aria-hidden="true" /> View site
               </a>
@@ -310,6 +353,10 @@ function AdminEditor({
                   setDraft(DEFAULT_CONTENT);
                   setFlash("Content reset to defaults.");
                 }
+              }}
+              onSync={() => {
+                requestPublishNow(draft);
+                setFlash("Publishing your content to the live site now.");
               }}
               importRef={importRef}
             />
@@ -889,11 +936,13 @@ function SettingsTab({
   onExport,
   onImport,
   onReset,
+  onSync,
   importRef,
 }: {
   onExport: () => void;
   onImport: (file: File | undefined) => void;
   onReset: () => void;
+  onSync: () => void;
   importRef: RefObject<HTMLInputElement | null>;
 }) {
   const { draft, actions } = useAdmin();
@@ -944,6 +993,15 @@ function SettingsTab({
           <TextField label="Line at the very bottom" value={shared.footerBottomLine} onChange={(footerBottomLine) => actions.setPage("shared", { footerBottomLine })} />
         </AdminGrid>
         <p className="adm-note">Footer links (Home / Menu / About / Contact / WhatsApp / Your order) follow the site navigation and stay as they are. The big outlined wordmark at the bottom uses your site name automatically.</p>
+      </AdminSection>
+
+      <AdminSection title="Publishing" description="Changes save here instantly, then get committed to the GitHub repository that runs the live site. After a publish, Vercel rebuilds and every browser sees the update in 1-2 minutes.">
+        <div className="adm-danger-actions">
+          <button type="button" className="adm-btn adm-btn--ghost" onClick={onSync}>
+            <Upload size={16} aria-hidden="true" /> Sync everything to the live site
+          </button>
+        </div>
+        <p className="adm-note">Use this once on a new browser to upload its stored content and images to GitHub. After that, every edit publishes automatically.</p>
       </AdminSection>
 
       <AdminSection title="Backup" description="Export your content, or restore it on another device.">

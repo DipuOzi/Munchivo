@@ -157,6 +157,12 @@ export async function urlForRef(ref: string): Promise<string | null> {
   return url;
 }
 
+/** Raw record behind a ref — used by the publish pipeline to read upload bytes. */
+export async function blobForRef(ref: string): Promise<{ blob: Blob; type: string; name: string } | null> {
+  const record = await getImage(ref.slice(REF_PREFIX.length));
+  return record ? { blob: record.blob, type: record.type, name: record.name } : null;
+}
+
 /* ------------------------------ walkers ----------------------------------- */
 
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
