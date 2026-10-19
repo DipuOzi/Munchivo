@@ -8,9 +8,9 @@
     "openingHours": "5 PM - 9 PM ",
     "currencyLabel": "৳",
     "socials": {
-      "instagram": "INSTAGRAM_URL_HERE",
-      "facebook": "FACEBOOK_URL_HERE",
-      "tiktok": "TIKTOK_URL_HERE"
+      "instagram": "instagram.com",
+      "facebook": "facebook.com",
+      "tiktok": "tiktok.com"
     }
   },
   "products": [
