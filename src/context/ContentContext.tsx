@@ -79,12 +79,36 @@ function migrateLogo(content: SiteContent): SiteContent {
  * publishes them). Server entries always win on identity.
  */
 function mergeServerContent(current: SiteContent, incoming: SiteContent): SiteContent {
-  const serverIds = new Set(incoming.reviews.list.map((review) => review.id));
+  const resolved = protectLocalImages(current, incoming) as SiteContent;
+  const serverIds = new Set(resolved.reviews.list.map((review) => review.id));
   const localOnly = current.reviews.list.filter((review) => !serverIds.has(review.id));
   const reviews = localOnly.length
-    ? { ...incoming.reviews, list: [...incoming.reviews.list, ...localOnly] }
-    : incoming.reviews;
-  return { ...incoming, reviews };
+    ? { ...resolved.reviews, list: [...resolved.reviews.list, ...localOnly] }
+    : resolved.reviews;
+  return { ...resolved, reviews };
+}
+
+/**
+ * Published content must never contain `blob:` URLs (only valid in the one
+ * browser that minted them). If an older / broken publication slipped one in,
+ * keep this browser's own stored value instead so the site self-heals.
+ */
+function protectLocalImages(local: unknown, incoming: unknown): unknown {
+  if (typeof incoming === "string") {
+    if (!incoming.startsWith("blob:")) return incoming;
+    return typeof local === "string" && !local.startsWith("blob:") ? local : incoming;
+  }
+  if (Array.isArray(incoming)) {
+    if (!Array.isArray(local)) return incoming;
+    return incoming.map((item, index) => protectLocalImages(local[index], item));
+  }
+  if (isPlainObject(incoming)) {
+    if (!isPlainObject(local)) return incoming;
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(incoming)) result[key] = protectLocalImages(local[key], value);
+    return result;
+  }
+  return incoming;
 }
 
 function loadContent(): SiteContent {

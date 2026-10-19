@@ -14,7 +14,7 @@
 /* the current browser while the deploy runs in the background.               */
 /* ------------------------------------------------------------------------ */
 
-import { blobForRef, REF_PREFIX } from "./imageStore";
+import { blobForRef, refForUrl, REF_PREFIX } from "./imageStore";
 import { ADMIN_CODE } from "./adminCode";
 import type { SiteContent } from "../content/defaults";
 
@@ -141,19 +141,34 @@ async function ensureStaged(key: string, mime: string, base64: string): Promise<
  * tree ready for commit plus every file that needs to be committed with it.
  */
 async function materialize(content: SiteContent): Promise<{ files: StagedFile[]; serverContent: SiteContent }> {
+  /** Ref ids already turned into permanent repo paths in this pass. */
   const filesByPath = new Map<string, StagedFile>();
+  /** Uploads a ref's blob (or confirms the registry knows it) and returns its repo path. */
+  const stageRef = async (ref: string): Promise<string | null> => {
+    const existing = readRegistry()[ref];
+    if (existing?.sha && existing?.path) return existing.path;
+    const record = await blobForRef(ref);
+    if (!record) return null; // Blob lost locally; the caller decides how to fail.
+    const file = await ensureStaged(ref, record.type || "image/jpeg", await blobToBase64(record.blob));
+    filesByPath.set(file.path, file);
+    return file.path;
+  };
 
   const walk = async (value: unknown): Promise<unknown> => {
     if (typeof value === "string") {
-      // Uploaded images stored in IndexedDB on this browser.
-      if (value.startsWith(REF_PREFIX)) {
-        const existing = readRegistry()[value];
-        if (existing?.sha && existing?.path) return existing.path;
-        const record = await blobForRef(value);
-        if (!record) return value; // Blob lost locally; keep the ref untouched.
-        const file = await ensureStaged(value, record.type || "image/jpeg", await blobToBase64(record.blob));
-        filesByPath.set(file.path, file);
-        return file.path;
+      // This browser's uploads: content may hold `@idb:` refs (localStorage
+      // form) or `blob:` object URLs (fresh ImageField values in the draft).
+      if (value.startsWith(REF_PREFIX) || value.startsWith("blob:")) {
+        const ref = value.startsWith(REF_PREFIX) ? value : refForUrl(value);
+        if (ref) {
+          const path = await stageRef(ref);
+          if (path) return path;
+          throw new Error(
+            `An uploaded image (${ref}) is missing from this browser's image store. Re-upload it in the admin panel, then save again.`,
+          );
+        }
+        // A dead blob URL from another session — nothing we can recover here.
+        return value;
       }
       // Legacy inline data URLs (only present when storage-shrinking failed).
       if (value.startsWith("data:image/") && value.length > 8_000) {
@@ -174,7 +189,23 @@ async function materialize(content: SiteContent): Promise<{ files: StagedFile[];
   };
 
   const serverContent = (await walk(content)) as SiteContent;
+  // Safety net: a commit must never carry browser-session-only URLs again.
+  assertNoSessionUrls(serverContent);
   return { files: [...filesByPath.values()], serverContent };
+}
+
+/** Throws if any `blob:`/`@idb:`/inline data URL survived materialization. */
+function assertNoSessionUrls(value: unknown): void {
+  const bad = (text: string): boolean => text.startsWith("blob:") || text.startsWith(REF_PREFIX) || (text.startsWith("data:image/") && text.length > 8_000);
+  const visit = (node: unknown): void => {
+    if (typeof node === "string") {
+      if (bad(node)) throw new Error("An image reference could not be converted to a permanent file path. Try re-uploading that image.");
+      return;
+    }
+    if (Array.isArray(node)) return void node.forEach(visit);
+    if (node && typeof node === "object") return void Object.values(node).forEach(visit);
+  };
+  visit(value);
 }
 
 async function commit(content: SiteContent): Promise<void> {
