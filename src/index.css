@@ -597,8 +597,8 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .hdr-burger { display: block; }
   .hdr--scrolled .hdr-shell { max-width: 100%; }
   .home-hero { height: auto; min-height: 100svh; }
-  .home-hero-inner { flex-direction: column; align-items: flex-start; height: auto; gap: clamp(28px, 4.6vw, 44px); padding-top: clamp(118px, 14vh, 150px); padding-bottom: clamp(56px, 7.5vw, 84px); }
-  .hero-fan { flex: none; align-self: auto; width: 100%; height: clamp(310px, 52vw, 410px); margin-top: 4px; padding-top: 0; }
+  .home-hero-inner { flex-direction: column; align-items: flex-start; height: auto; gap: clamp(28px, 4.6vw, 44px); padding-top: clamp(118px, 14vh, 150px); padding-bottom: clamp(44px, 6vw, 64px); }
+  .hero-fan { flex: none; align-self: auto; width: 100%; height: clamp(330px, 58vw, 450px); margin-top: 4px; padding-top: 0; }
   .hero-arrow { display: none; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 25px; }
   .experience-section { grid-template-columns: 1fr 1fr; min-height: 600px; }
@@ -640,7 +640,16 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .brand-wordmark { font-size: 27px; }
   .brand-logo { max-width: 210px; max-height: 48px; }
   .mnav-inner { padding-top: 110px; }
-  .hero-lede { font-size: 14px; }
+  .mnav-label { font-size: clamp(36px, 10vw, 54px); }
+
+  /* Phone hero: everything drops a notch so the composition feels editorial,
+     not oversized — logo, kicker, title, tagline, lede, buttons, trust line. */
+  .hero-kicker { padding: 8px 14px 8px 12px; font-size: 10.5px; }
+  .hero-brand-title { font-size: clamp(38px, 11vw, 56px); }
+  .hero-tagline { font-size: clamp(19px, 5vw, 26px); }
+  .hero-lede { font-size: 13.5px; line-height: 1.62; }
+  .hero-trust { font-size: 10.5px; }
+  .button { min-height: 50px; padding: 12px 19px; font-size: 12.5px; }
 
   /* Phone deck: lane spacing is derived from the viewport so the hand always
      spans edge-to-edge of its column without clipping. Hand cards read as
@@ -678,7 +687,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .contact-grid { grid-template-columns: 1fr; gap: 46px; }
   .about-lineup-grid { grid-template-columns: 1fr; gap: 48px; }
   .section-heading { margin-bottom: 38px; }
-  .section-heading h2, .about-people-head h2, .about-why h2, .about-lineup h2, .contact-intro h2 { font-size: clamp(51px, 12vw, 71px); }
+  .section-heading h2, .about-people-head h2, .about-why h2, .about-lineup h2, .contact-intro h2 { font-size: clamp(40px, 10.5vw, 58px); }
   .about-people-head { display: block; margin-bottom: 40px; }
   .about-people-aside { width: auto; max-width: 420px; margin-top: 22px; }
   .people-grid { grid-template-columns: 1fr; gap: 22px; max-width: 520px; }
@@ -694,7 +703,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .product-details > p { min-height: 0; }
   .experience-section { display: block; }
   .xp { padding-top: 80px; }
-  .xp-visual { height: 125vw; max-height: 560px; }
+  .xp-visual { height: 100vw; max-height: 470px; }
   .xp-main { left: 6%; width: 72%; height: 90%; border-radius: 160px 160px 18px 18px; }
   .xp-card { padding: 6px 6px 0; border-radius: 12px; }
   .xp-card figcaption { padding: 7px 2px 9px; font-size: 12px; }
@@ -703,17 +712,17 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .xp-badge { width: 96px; height: 96px; right: 8%; }
   .xp-badge text { font-size: 15px; }
   .xp-badge-core { font-size: 36px; }
-  .xp-copy h2 { font-size: clamp(54px, 13vw, 78px); }
+  .xp-copy h2 { font-size: clamp(44px, 11vw, 62px); }
   .xp-step { grid-template-columns: 44px 1fr; padding: 18px 0; }
   .xp-step h3 { font-size: 20px; }
   .xp-marquee { margin-top: 70px; padding: 22px 0; }
   .experience-image { height: 460px; min-height: 0; }
   .experience-copy { min-height: 510px; padding: 78px var(--page-gutter) 83px; }
-  .experience-copy h2 { font-size: clamp(68px, 14vw, 91px); }
+  .experience-copy h2 { font-size: clamp(46px, 11.5vw, 64px); }
   .sb { padding-top: 88px; padding-bottom: 92px; }
   .sb-actions { gap: 18px; }
   .sb-grid { grid-template-columns: 1fr; gap: 58px; }
-  .sb-title { font-size: clamp(56px, 13vw, 84px); }
+  .sb-title { font-size: clamp(44px, 11.5vw, 66px); }
   .sb-sub { max-width: 100%; }
   .sb-stats { margin-top: 30px; padding-top: 22px; }
   .sb-stats div { padding: 0 24px; }
@@ -724,7 +733,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .sb-card--side { width: 40%; }
 
   .why2-head { display: block; }
-  .why2-head h2 { font-size: clamp(51px, 12vw, 71px); }
+  .why2-head h2 { font-size: clamp(40px, 10.5vw, 58px); }
   .why2-head-aside { width: auto; max-width: 420px; margin-top: 24px; }
   .why2-grid { grid-template-columns: 1fr; gap: 22px; margin-top: 44px; }
   .why2-media { height: 200px; }
@@ -734,8 +743,8 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
 
 @media (max-width: 420px) {
   :root { --page-gutter: 20px; }
-  .hero-brand-title { font-size: 13.5vw; }
-  .hero-tagline { font-size: 26px; }
+  .hero-brand-title { font-size: 11.5vw; }
+  .hero-tagline { font-size: clamp(20px, 6.5vw, 24px); }
   .hero-fan { --card-w: clamp(96px, 26vw, 116px); --lane: min(14vw, 52px); }
   .hero-buttons .button { padding-inline: 18px; }
   .hero-buttons .text-link { font-size: 12px; }
