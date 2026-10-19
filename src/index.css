@@ -340,7 +340,7 @@ h1, h2, h3, p { margin: 0; }
 .why2-link svg { transition: transform 0.25s ease; }
 .why2-card:hover .why2-link svg { transform: translateX(5px); }
 
-/* Footer: the closing act, held on cream — dotted patches and oversized food
+/* Footer: the closing act, held on cream ï¿½ dotted patches and oversized food
    doodles in the background, a rotating stamp, numbered editorial nav and a
    dashed street lane rolling by. */
 .site-footer { position: relative; overflow: hidden; background: var(--cream); color: var(--dark); }
@@ -380,7 +380,7 @@ h1, h2, h3, p { margin: 0; }
 .footer-navarrow { flex: none; opacity: 0; transform: translate(-7px, 7px) scale(0.7); transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); color: var(--orange-deep); }
 .footer-column--explore .footer-navlink:hover { color: var(--orange-deep); padding-left: 8px; }
 .footer-column--explore .footer-navlink:hover .footer-navarrow { opacity: 1; transform: none; }
-/* Slim red ticker ribbon — "See you at ? the cart." looping across. */
+/* Slim red ticker ribbon ï¿½ "See you at ? the cart." looping across. */
 .footer-band { position: relative; margin-top: clamp(36px, 6vh, 68px); padding: 11px 0; background: var(--orange-deep); overflow: hidden; }
 .footer-band-track { display: flex; width: max-content; will-change: transform; animation: footer-ticker 180s linear infinite; }
 .footer-band:hover .footer-band-track { animation-play-state: paused; }
@@ -597,8 +597,8 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .hdr-burger { display: block; }
   .hdr--scrolled .hdr-shell { max-width: 100%; }
   .home-hero { height: auto; min-height: 100svh; }
-  .home-hero-inner { flex-direction: column; align-items: flex-start; height: auto; gap: 44px; padding-top: clamp(118px, 14vh, 150px); padding-bottom: 84px; }
-  .hero-fan { flex: none; align-self: auto; width: 100%; height: clamp(310px, 52vw, 410px); margin-top: 10px; padding-top: 0; }
+  .home-hero-inner { flex-direction: column; align-items: flex-start; height: auto; gap: clamp(28px, 4.6vw, 44px); padding-top: clamp(118px, 14vh, 150px); padding-bottom: clamp(56px, 7.5vw, 84px); }
+  .hero-fan { flex: none; align-self: auto; width: 100%; height: clamp(310px, 52vw, 410px); margin-top: 4px; padding-top: 0; }
   .hero-arrow { display: none; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 25px; }
   .experience-section { grid-template-columns: 1fr 1fr; min-height: 600px; }
@@ -641,11 +641,25 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .brand-logo { max-width: 210px; max-height: 48px; }
   .mnav-inner { padding-top: 110px; }
   .hero-lede { font-size: 14px; }
-  .hero-fan { height: clamp(250px, 64vw, 340px); --card-w: clamp(114px, 30vw, 142px); }
-  .hero-card[data-slot="0"] { --tx: calc(min(var(--fs, 1), 0.6) * -130px); }
-  .hero-card[data-slot="1"] { --tx: calc(min(var(--fs, 1), 0.6) * -65px); }
-  .hero-card[data-slot="3"] { --tx: calc(min(var(--fs, 1), 0.6) * 65px); }
-  .hero-card[data-slot="4"] { --tx: calc(min(var(--fs, 1), 0.6) * 130px); }
+
+  /* Phone deck: lane spacing is derived from the viewport so the hand always
+     spans edge-to-edge of its column without clipping. Hand cards read as
+     clean polaroids (captions reveal on the raised card when tapped), so
+     nothing is ever chopped mid-word by a neighbouring card. */
+  .hero-fan {
+    --card-w: clamp(104px, 26vw, 132px);
+    --lane: min(14.6vw, 60px);
+    height: clamp(266px, 66vw, 330px);
+  }
+  .hero-card { padding: 7px 7px 0; border-radius: 16px; }
+  .hero-card-in { border-radius: 11px; }
+  .hero-card-cap { padding: 8px 2px 5px; font-size: 10.5px; }
+  .hero-card:not([data-top]) .hero-card-cap { visibility: hidden; }
+  .hero-card[data-slot="0"] { --tx: calc(var(--lane) * -2); --ty: -46px; --rot: -5deg; }
+  .hero-card[data-slot="1"] { --tx: calc(var(--lane) * -1); --ty: -23px; --rot: -2deg; }
+  .hero-card[data-slot="2"] { --ty: 0px; --rot: 0deg; }
+  .hero-card[data-slot="3"] { --tx: var(--lane); --ty: -23px; --rot: 2deg; }
+  .hero-card[data-slot="4"] { --tx: calc(var(--lane) * 2); --ty: -46px; --rot: 5deg; }
   .hero-buttons { margin-top: 24px; }
   .button { min-height: 52px; padding: 13px 20px; }
   .button-group { gap: 19px; }
@@ -722,6 +736,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   :root { --page-gutter: 20px; }
   .hero-brand-title { font-size: 13.5vw; }
   .hero-tagline { font-size: 26px; }
+  .hero-fan { --card-w: clamp(96px, 26vw, 116px); --lane: min(14vw, 52px); }
   .hero-buttons .button { padding-inline: 18px; }
   .hero-buttons .text-link { font-size: 12px; }
   .product-title-row { flex-direction: column; align-items: flex-start; gap: 6px; }
@@ -746,7 +761,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
 /* ==================================================================
    Reviews page (wall + submission form)
    ================================================================== */
-/* Review wall — light editorial section, consistent with the sitewide cream sections. */
+/* Review wall ï¿½ light editorial section, consistent with the sitewide cream sections. */
 .reviews-wall { padding: clamp(62px, 7.5vw, 112px) 0 clamp(44px, 5.5vw, 76px); }
 
 /* Same size as the "leave a review" heading below it. */
@@ -839,7 +854,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
 .rvw-person strong { font-size: 15px; letter-spacing: -0.01em; }
 .rvw-person span { color: var(--muted); font-size: 12.5px; }
 
-/* Submission band — the sitewide closer look (same gradient language as the
+/* Submission band ï¿½ the sitewide closer look (same gradient language as the
    contact page's "Find us online" band), with the form set directly on it. */
 .rvw-post {
   position: relative;
@@ -928,7 +943,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
 }
 
 /* ==================================================================
-   TEMP PREVIEW — "Pulp Display Medium" applied site-wide.
+   TEMP PREVIEW ï¿½ "Pulp Display Medium" applied site-wide.
    To revert: delete this whole block and the files in public/fonts/.
    Nothing else in this stylesheet depends on it.
    ================================================================== */

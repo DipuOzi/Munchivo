@@ -39,11 +39,12 @@ export function HomePage() {
       const topCard = fan?.querySelector<HTMLElement>(".hero-card[data-top]");
       const handCard = fan?.querySelector<HTMLElement>(".hero-card:not([data-top])");
       if (!fan || !topCard || !handCard) return;
+      const phone = window.matchMedia("(max-width: 700px)").matches;
       const topH = topCard.offsetHeight;  // top card is a touch wider-ratio when selected
       const handH = handCard.offsetHeight;
       const fanH = fan.clientHeight;
       const handTop = handH * 1.02 + 26;  // top of the hand, from its base (tilt-aware)
-      const gap = 58;                     // airy space between card and hand
+      const gap = phone ? 30 : 58;        // airy space between card and hand
       const headroom = 14;                // clearance at the column top
       // Grow the top card only until it would collide with the hand or the column top.
       const maxScale = Math.max(1, (fanH - headroom - handTop - gap) / topH);
