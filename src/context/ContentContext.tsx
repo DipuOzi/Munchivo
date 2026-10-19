@@ -90,13 +90,14 @@ function mergeServerContent(current: SiteContent, incoming: SiteContent): SiteCo
 
 /**
  * Published content must never contain `blob:` URLs (only valid in the one
- * browser that minted them). If an older / broken publication slipped one in,
- * keep this browser's own stored value instead so the site self-heals.
+ * browser that minted them). If one slipped into a publication, keep this
+ * browser's own value — a freshly hydrated one still renders, and it
+ * re-persists as a proper `@idb:` ref, healing the local storage too.
  */
 function protectLocalImages(local: unknown, incoming: unknown): unknown {
   if (typeof incoming === "string") {
     if (!incoming.startsWith("blob:")) return incoming;
-    return typeof local === "string" && !local.startsWith("blob:") ? local : incoming;
+    return typeof local === "string" ? local : incoming;
   }
   if (Array.isArray(incoming)) {
     if (!Array.isArray(local)) return incoming;
