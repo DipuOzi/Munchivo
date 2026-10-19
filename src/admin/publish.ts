@@ -16,6 +16,7 @@
 
 import { blobForRef, refForUrl, REF_PREFIX } from "./imageStore";
 import { ADMIN_CODE } from "./adminCode";
+import { buildFreshness, isDevRuntime } from "../version";
 import type { SiteContent } from "../content/defaults";
 
 const API_URL = "/api/publish";
@@ -209,6 +210,7 @@ function assertNoSessionUrls(value: unknown): void {
 }
 
 async function commit(content: SiteContent): Promise<void> {
+  await assertFreshBundle();
   setStatus({ state: "uploading", message: undefined });
   const { files, serverContent } = await materialize(content);
   setStatus({ state: "committing", message: files.length ? `${files.length} image${files.length === 1 ? "" : "s"} uploading…` : undefined });
@@ -242,7 +244,7 @@ function processQueue() {
   queue.running = true;
   void (async () => {
     try {
-      if (isLocalPreview()) {
+      if (isDevRuntime()) {
         setStatus({ state: "local-only" });
       } else if (JSON.stringify(content) !== lastPublishedJson) {
         await commit(content);
@@ -260,8 +262,13 @@ function processQueue() {
   })();
 }
 
-function isLocalPreview(): boolean {
-  return /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+/** Blocks publishes from a stale (cached) admin tab — those wrote bad data before. */
+async function assertFreshBundle(): Promise<void> {
+  if (isDevRuntime()) return;
+  const freshness = await buildFreshness();
+  if (freshness === "stale") {
+    throw new Error("This admin tab is outdated — refresh the page (Ctrl+Shift+R), then save again.");
+  }
 }
 
 /** Schedules a publish of the given content (debounced, last-wins). */

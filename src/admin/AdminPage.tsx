@@ -6,6 +6,7 @@ import { AdminGrid, AdminSection, ImageField, ListControls, TextAreaField, TextF
 import { fitContentForStorage, estimateContentBytes } from "./imageUpload";
 import { ADMIN_CODE } from "./adminCode";
 import { onPublishStatus, requestPublish, requestPublishNow, type PublishState } from "./publish";
+import { buildFreshness } from "../version";
 import "./admin.css";
 
 const AUTH_KEY = "munchivo-admin-auth-v1";
@@ -214,6 +215,24 @@ function AdminEditor({
   // Subscribe to the publish pipeline (Git commit -> Vercel rebuild).
   useEffect(() => onPublishStatus(setPublishState), []);
 
+  // Deployments change the build id; a stale admin tab must not publish old
+  // content. Poll periodically and offer a refresh when a new build is live.
+  const [staleBundle, setStaleBundle] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const check = () => {
+      void buildFreshness().then((freshness) => {
+        if (!cancelled) setStaleBundle(freshness === "stale");
+      });
+    };
+    check();
+    const interval = setInterval(check, 45_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   // Autosave: changes are pushed to the live site after a short pause.
   // If the content no longer fits browser storage, stored images are
   // recompressed automatically until everything fits — then it saves.
@@ -334,6 +353,14 @@ function AdminEditor({
         </header>
 
         <main className="adm-main">
+          {staleBundle && (
+            <p className="adm-note adm-note--warn">
+              A newer version of the site just went live. Refresh this page (Ctrl+Shift+R) before making changes — publishing from an outdated tab is blocked.
+              <button type="button" className="adm-btn adm-btn--small" style={{ marginLeft: 12 }} onClick={() => window.location.reload()}>
+                Refresh now
+              </button>
+            </p>
+          )}
           {flash && <p className="adm-note">{flash}</p>}
           {tab === "home" && <HomeTab />}
           {tab === "menu" && <MenuTab />}

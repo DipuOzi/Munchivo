@@ -42,7 +42,7 @@
       "id": "patenga-piyaju",
       "name": "Patenga Piyaju",
       "description": "Golden, crisp bites with street-side character.",
-      "image": "blob:https://munchivo.vercel.app/394a91f0-5409-44fa-ae2d-49bb5773225b",
+      "image": "/images/patenga-piyaju.jpg",
       "imageAlt": "Golden piyaju fritters in a paper-lined tray",
       "price": 60
     },
