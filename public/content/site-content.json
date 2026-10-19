@@ -18,7 +18,7 @@
       "id": "meatbox",
       "name": "MeatBox",
       "description": "A hearty box built for your biggest street-food craving.",
-      "image": "/uploads/img-mvf96h8b-s3k6ty.webp",
+      "image": "/images/meatbox.jpg",
       "imageAlt": "A takeaway box of grilled meat on a food cart counter",
       "price": 250
     },
@@ -42,7 +42,7 @@
       "id": "patenga-piyaju",
       "name": "Patenga Piyaju",
       "description": "Golden, crisp bites with street-side character.",
-      "image": "/uploads/img-mvf8upgk-amu2gq.jpg",
+      "image": "blob:https://munchivo.vercel.app/394a91f0-5409-44fa-ae2d-49bb5773225b",
       "imageAlt": "Golden piyaju fritters in a paper-lined tray",
       "price": 60
     },
@@ -65,7 +65,7 @@
   ],
   "team": [
     {
-      "name": "Arif",
+      "name": "Dipu",
       "role": "The cook",
       "quote": "If it leaves the cart late, it doesn't leave at all.",
       "why": "He runs the grill with one rule — the same plate every single time, never rushed.",
@@ -148,7 +148,7 @@
       "experienceImage": "/images/cart-experience.jpg",
       "experienceImageAlt": "A customer receiving mini burgers at a warmly lit food cart",
       "experienceCardOneImage": "/images/masala-tea.jpg",
-      "experienceCardTwoImage": "/uploads/img-mvf8upgk-amu2gq.jpg",
+      "experienceCardTwoImage": "/images/patenga-piyaju.jpg",
       "experienceEyebrow": "02 / THE EXPERIENCE",
       "experienceTitleLine1": "It starts",
       "experienceTitleLine2": "with a stop.",
