@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useRef, useState, type RefObject } from "react";
-import { Download, ExternalLink, Lock, LogOut, Plus, RotateCcw, Upload } from "lucide-react";
+import { Download, ExternalLink, Lock, LogOut, Plus, RotateCcw, Save, Upload } from "lucide-react";
 import { useContent } from "../context/ContentContext";
 import { DEFAULT_CONTENT, type Product, type Review, type SiteContent, type TeamMember } from "../content/defaults";
 import { AdminGrid, AdminSection, ImageField, ListControls, TextAreaField, TextField } from "./fields";
 import { fitContentForStorage, estimateContentBytes } from "./imageUpload";
 import { ADMIN_CODE } from "./adminCode";
-import { onPublishStatus, requestPublish, requestPublishNow, type PublishState } from "./publish";
+import { onPublishStatus, requestPublishNow, type PublishState } from "./publish";
 import { buildFreshness } from "../version";
 import "./admin.css";
 
@@ -164,7 +164,7 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
 /* Publish status line                                                 */
 /* ------------------------------------------------------------------ */
 
-function publishStatusText(publishState: PublishState, saveStatus: "idle" | "saving" | "saved"): string {
+function publishStatusText(publishState: PublishState, saveStatus: "idle" | "saving" | "saved", unpublished = false): string {
   switch (publishState.state) {
     case "uploading":
       return "Saved · uploading images to the repository…";
@@ -173,11 +173,13 @@ function publishStatusText(publishState: PublishState, saveStatus: "idle" | "sav
     case "published":
       return "Saved · live site updates in 1–2 min";
     case "local-only":
-      return "Saved locally (dev preview — publishing runs on the live site)";
+      return "Saved locally (dev preview — click Save & publish on the live site)";
     case "failed":
       return `Saved locally · publish failed: ${publishState.message ?? "unknown error"}`;
     default:
-      return saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "All changes saved" : "No changes yet";
+      if (saveStatus === "saving") return "Saving…";
+      if (unpublished) return "Unpublished changes · click Save & publish";
+      return saveStatus === "saved" ? "All changes saved" : "No changes yet";
   }
 }
 
@@ -233,30 +235,62 @@ function AdminEditor({
     };
   }, []);
 
-  // Autosave: changes are pushed to the live site after a short pause.
-  // If the content no longer fits browser storage, stored images are
-  // recompressed automatically until everything fits — then it saves.
+  // Unpublished-changes flag: any draft edit marks it, a successful publish
+  // clears it. Compared by JSON so adopting fresh server content (a new
+  // object reference with the same data) never counts as a local edit.
+  const publishedJsonRef = useRef(JSON.stringify(content));
+  const [unpublished, setUnpublished] = useState(false);
+  useEffect(() => {
+    setUnpublished(JSON.stringify(draft) !== publishedJsonRef.current);
+  }, [draft]);
+  useEffect(() => {
+    if (publishState.state === "published") {
+      publishedJsonRef.current = JSON.stringify(draft);
+      setUnpublished(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publishState]);
+  // Stop accidental close/refresh while edits are only in this browser.
+  useEffect(() => {
+    if (!unpublished) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [unpublished]);
+
+  /**
+   * Local save: fit the content (recompressing images if needed) into browser
+   * storage and commit it to the site context. Returns the saved content.
+   */
+  async function saveToBrowser(current: SiteContent): Promise<SiteContent> {
+    const fitted = await fitContentForStorage(current);
+    // Only take the shrink path when it actually reduces the total size,
+    // otherwise a save that still fails would loop forever.
+    if (fitted !== current && lastShrinkSize.current !== estimateContentBytes(fitted)) {
+      lastShrinkSize.current = estimateContentBytes(fitted);
+      setDraft(fitted as SiteContent);
+      setFlash("Images were compressed a little more so everything fits in browser storage.");
+      return fitted as SiteContent;
+    }
+    lastShrinkSize.current = null;
+    setContent(current);
+    return current;
+  }
+
+  // Autosave is local-only: edits persist in this browser immediately, but the
+  // live site is only updated when "Save & publish" is clicked — so a batch of
+  // edits becomes exactly one commit (and one Vercel deploy).
   useEffect(() => {
     if (draft === content) return;
     setStatus("saving");
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       void (async () => {
-        const fitted = await fitContentForStorage(draft);
-        // Only take the shrink path when it actually reduces the total size,
-        // otherwise a save that still fails would loop forever.
-        if (fitted !== draft && lastShrinkSize.current !== estimateContentBytes(fitted)) {
-          lastShrinkSize.current = estimateContentBytes(fitted);
-          setDraft(fitted as SiteContent);
-          setFlash("Images were compressed a little more so everything fits in browser storage.");
-          return;
-        }
-        lastShrinkSize.current = null;
-        setContent(draft);
+        await saveToBrowser(draft);
         setStatus("saved");
-        // The local save is done — now push the content (and any new uploads)
-        // to the repository so every browser on the live site sees it too.
-        requestPublish(draft);
       })();
     }, 450);
     return () => {
@@ -264,6 +298,15 @@ function AdminEditor({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft]);
+
+  /** Manual publish: save locally first, then push everything in one commit. */
+  async function handleSaveAndPublish() {
+    setStatus("saving");
+    const saved = await saveToBrowser(draft);
+    setStatus("saved");
+    setFlash("Publishing all your changes to the live site…");
+    requestPublishNow(saved);
+  }
 
   const actions: AdminActions = {
     setSite: (patch) => setDraft((current) => ({ ...current, site: { ...current.site, ...patch } })),
@@ -299,7 +342,7 @@ function AdminEditor({
         throw new Error("Unexpected file");
       }
       setDraft(parsed);
-      setFlash("Backup imported. It has been saved to the live site.");
+      setFlash("Backup imported. Click \u201cSave & publish\u201d to push it to the live site.");
     } catch {
       setFlash("That file could not be imported.");
     } finally {
@@ -323,8 +366,16 @@ function AdminEditor({
             </div>
             <div className="adm-top-actions">
               <span className={`adm-save-status ${statusClass}`} role="status">
-                {saveError ?? publishStatusText(publishState, status)}
+                {saveError ?? publishStatusText(publishState, status, unpublished)}
               </span>
+              <button
+                type="button"
+                className="adm-btn adm-btn--cream adm-btn--small"
+                disabled={!unpublished || publishState.state === "uploading" || publishState.state === "committing"}
+                onClick={() => void handleSaveAndPublish()}
+              >
+                <Save size={15} aria-hidden="true" /> Save &amp; publish
+              </button>
               {publishState.state === "failed" && (
                 <button type="button" className="adm-btn adm-btn--cream adm-btn--small" onClick={() => requestPublishNow(draft)}>
                   <RotateCcw size={15} aria-hidden="true" /> Retry publish
@@ -1022,13 +1073,13 @@ function SettingsTab({
         <p className="adm-note">Footer links (Home / Menu / About / Contact / WhatsApp / Your order) follow the site navigation and stay as they are. The big outlined wordmark at the bottom uses your site name automatically.</p>
       </AdminSection>
 
-      <AdminSection title="Publishing" description="Changes save here instantly, then get committed to the GitHub repository that runs the live site. After a publish, Vercel rebuilds and every browser sees the update in 1-2 minutes.">
+      <AdminSection title="Publishing" description="Edits stay in this browser until you click “Save & publish” — then everything goes to the GitHub repository in a single commit, and Vercel rebuilds the live site (every browser sees it in 1-2 minutes).">
         <div className="adm-danger-actions">
           <button type="button" className="adm-btn adm-btn--ghost" onClick={onSync}>
             <Upload size={16} aria-hidden="true" /> Sync everything to the live site
           </button>
         </div>
-        <p className="adm-note">Use this once on a new browser to upload its stored content and images to GitHub. After that, every edit publishes automatically.</p>
+        <p className="adm-note">Re-syncs this browser's whole content store to GitHub. Handy after importing a backup, or to recover from a publish failure on an older tab.</p>
       </AdminSection>
 
       <AdminSection title="Backup" description="Export your content, or restore it on another device.">
