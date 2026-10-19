@@ -60,7 +60,7 @@ export function AboutPage() {
             <span className="eyebrow">{about.whyEyebrow}</span>
             <h2 id="about-why-title">{about.whyTitleLine1} <em>{about.whyTitleLine2}</em></h2>
             <p>{about.whyText}</p>
-            <Link to="/menu" className="button button--orange">Taste the result <ArrowUpRight size={18} aria-hidden="true" /></Link>
+            <Link to="/menu" className="button button--orange">{about.whyCta} <ArrowUpRight size={18} aria-hidden="true" /></Link>
           </Reveal>
           <div className="about-why-list">
             {reasons.map((reason, index) => (
@@ -84,7 +84,7 @@ export function AboutPage() {
             <span className="eyebrow eyebrow--orange">{about.lineupEyebrow}</span>
             <h2 id="about-lineup-title">{about.lineupTitleLine1}<br /><em>{about.lineupTitleLine2}</em></h2>
             <p>{about.lineupText}</p>
-            <Link to="/menu" className="button button--orange">Explore the menu <ArrowUpRight size={18} aria-hidden="true" /></Link>
+            <Link to="/menu" className="button button--orange">{about.lineupCta} <ArrowUpRight size={18} aria-hidden="true" /></Link>
           </Reveal>
           <div className="about-lineup-list">
             {products.map((product, index) => (

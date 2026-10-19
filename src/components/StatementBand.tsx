@@ -47,9 +47,9 @@ export function StatementBand() {
           <p className="sb-sub">{home.statementText}</p>
 
           <div className="sb-actions">
-            <Link to="/menu" className="button button--dark">Find your favorite <ArrowUpRight size={19} aria-hidden="true" /></Link>
+            <Link to="/menu" className="button button--dark">{home.statementPrimaryCta} <ArrowUpRight size={19} aria-hidden="true" /></Link>
             <button type="button" className="sb-wa" onClick={orderIntent}>
-              Order on WhatsApp <ArrowUpRight size={17} aria-hidden="true" />
+              {home.statementSecondaryCta} <ArrowUpRight size={17} aria-hidden="true" />
             </button>
           </div>
 

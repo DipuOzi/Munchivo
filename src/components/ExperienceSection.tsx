@@ -90,8 +90,8 @@ export function ExperienceSection() {
           </ol>
 
           <Reveal delay={0.35} className="xp-actions">
-            <Link to="/menu" className="button button--orange">Start your order <ArrowUpRight size={19} aria-hidden="true" /></Link>
-            <Link to="/about" className="text-link text-link--light">Get to know Munchivo <ArrowUpRight size={18} aria-hidden="true" /></Link>
+            <Link to="/menu" className="button button--orange">{home.experiencePrimaryCta} <ArrowUpRight size={19} aria-hidden="true" /></Link>
+            <Link to="/about" className="text-link text-link--light">{home.experienceSecondaryCta} <ArrowUpRight size={18} aria-hidden="true" /></Link>
           </Reveal>
         </div>
       </div>

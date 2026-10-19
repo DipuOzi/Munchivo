@@ -457,10 +457,13 @@ function HomeTab() {
   return (
     <>
       <AdminSection title="Hero (top of the home page)">
-        <ImageField label="Hero image" value={home.heroImage} onChange={(heroImage) => set({ heroImage })} />
+        <p className="adm-note">
+          The home hero is a text-and-cards composition — there is no single hero photo here. The photo cards come from
+          the Products tab (next section), and the big Experience section photo has its own upload below.
+        </p>
         <AdminGrid>
-          <TextField label="Image description (alt text)" value={home.heroImageAlt} onChange={(heroImageAlt) => set({ heroImageAlt })} />
           <TextField label="Big brand title" value={home.heroTitle} onChange={(heroTitle) => set({ heroTitle })} hint="A dot is added at the end automatically." />
+          <span />
         </AdminGrid>
         <AdminGrid>
           <TextField label="Heading line 1" value={home.heroHeadingLine1} onChange={(heroHeadingLine1) => set({ heroHeadingLine1 })} />
@@ -502,6 +505,7 @@ function HomeTab() {
           <TextField label="Heading line 2 (italic)" value={home.signatureTitleLine2} onChange={(signatureTitleLine2) => set({ signatureTitleLine2 })} />
         </AdminGrid>
         <TextAreaField label="Side paragraph" value={home.signatureAside} onChange={(signatureAside) => set({ signatureAside })} />
+        <TextField label="Link below (last line)" value={home.signatureLinkLabel} onChange={(signatureLinkLabel) => set({ signatureLinkLabel })} />
         <p className="adm-note">The product cards in this section are managed in the Products tab.</p>
       </AdminSection>
 
@@ -518,6 +522,10 @@ function HomeTab() {
           <TextField label="Heading line 2 (italic)" value={home.experienceTitleLine2} onChange={(experienceTitleLine2) => set({ experienceTitleLine2 })} />
         </AdminGrid>
         <TextAreaField label="Paragraph" value={home.experienceText} onChange={(experienceText) => set({ experienceText })} />
+        <AdminGrid>
+          <TextField label="First button label" value={home.experiencePrimaryCta} onChange={(experiencePrimaryCta) => set({ experiencePrimaryCta })} />
+          <TextField label="Second text link" value={home.experienceSecondaryCta} onChange={(experienceSecondaryCta) => set({ experienceSecondaryCta })} />
+        </AdminGrid>
 
         <h3 className="adm-field-label" style={{ marginTop: 10 }}>Steps</h3>
         {home.steps.map((step, index) => (
@@ -551,6 +559,10 @@ function HomeTab() {
           <TextField label="Line 3 (italic)" value={home.statementLine3} onChange={(statementLine3) => set({ statementLine3 })} />
         </AdminGrid>
         <TextAreaField label="Paragraph" value={home.statementText} onChange={(statementText) => set({ statementText })} />
+        <AdminGrid>
+          <TextField label="First button label" value={home.statementPrimaryCta} onChange={(statementPrimaryCta) => set({ statementPrimaryCta })} />
+          <TextField label="Second button label" value={home.statementSecondaryCta} onChange={(statementSecondaryCta) => set({ statementSecondaryCta })} />
+        </AdminGrid>
         <AdminGrid>
           <TextField label="Main card caption" value={home.statementCardOneCaption} onChange={(statementCardOneCaption) => set({ statementCardOneCaption })} />
           <TextField label="Side card caption" value={home.statementCardTwoCaption} onChange={(statementCardTwoCaption) => set({ statementCardTwoCaption })} />
@@ -591,6 +603,7 @@ function HomeTab() {
           <TextField label="Heading line 2 (italic)" value={home.whyTitleLine2} onChange={(whyTitleLine2) => set({ whyTitleLine2 })} />
         </AdminGrid>
         <TextAreaField label="Side paragraph" value={home.whyAside} onChange={(whyAside) => set({ whyAside })} />
+        <TextField label="Link below the heading" value={home.whyLinkLabel} onChange={(whyLinkLabel) => set({ whyLinkLabel })} />
 
         {home.whyCards.map((card, index) => (
           <div className="adm-item" key={index}>
@@ -628,6 +641,7 @@ function HomeTab() {
         >
           <Plus size={15} aria-hidden="true" /> Add card
         </button>
+        <TextField label="Small link label on every card" value={home.whyCardCta} onChange={(whyCardCta) => set({ whyCardCta })} />
       </AdminSection>
     </>
   );
@@ -656,6 +670,10 @@ function MenuTab() {
           <TextField label="Heading" value={menu.sectionTitle} onChange={(sectionTitle) => set({ sectionTitle })} />
         </AdminGrid>
         <TextAreaField label="Paragraph" value={menu.sectionText} onChange={(sectionText) => set({ sectionText })} />
+        <AdminGrid>
+          <TextField label="Line above the order link" value={menu.bottomHeading} onChange={(bottomHeading) => set({ bottomHeading })} />
+          <TextField label="Link label" value={menu.bottomLinkLabel} onChange={(bottomLinkLabel) => set({ bottomLinkLabel })} />
+        </AdminGrid>
         <p className="adm-note">The menu items themselves (names, prices, photos) are managed in the Products tab.</p>
       </AdminSection>
     </>
@@ -696,6 +714,7 @@ function AboutTab() {
           <TextField label="Heading line 2 (italic)" value={about.whyTitleLine2} onChange={(whyTitleLine2) => set({ whyTitleLine2 })} />
         </AdminGrid>
         <TextAreaField label="Paragraph" value={about.whyText} onChange={(whyText) => set({ whyText })} />
+        <TextField label="Button label below" value={about.whyCta} onChange={(whyCta) => set({ whyCta })} />
 
         {about.reasons.map((reason, index) => (
           <div className="adm-item" key={index}>
@@ -725,6 +744,7 @@ function AboutTab() {
           <TextField label="Heading line 2 (italic)" value={about.lineupTitleLine2} onChange={(lineupTitleLine2) => set({ lineupTitleLine2 })} />
         </AdminGrid>
         <TextAreaField label="Paragraph" value={about.lineupText} onChange={(lineupText) => set({ lineupText })} />
+        <TextField label="Button label below" value={about.lineupCta} onChange={(lineupCta) => set({ lineupCta })} />
       </AdminSection>
     </>
   );
@@ -754,6 +774,11 @@ function ContactTab() {
           <TextField label="Heading line 2 (italic)" value={contact.introTitleLine2} onChange={(introTitleLine2) => set({ introTitleLine2 })} />
         </AdminGrid>
         <TextAreaField label="Paragraph" value={contact.introText} onChange={(introText) => set({ introText })} />
+        <AdminGrid>
+          <TextField label="WhatsApp button label" value={contact.whatsappCta} onChange={(whatsappCta) => set({ whatsappCta })} />
+          <TextField label="Order hint text" value={contact.orderPrompt} onChange={(orderPrompt) => set({ orderPrompt })} />
+        </AdminGrid>
+        <TextField label="Order hint link label" value={contact.orderLinkLabel} onChange={(orderLinkLabel) => set({ orderLinkLabel })} />
         <AdminGrid>
           <TextField label="Location row title" value={contact.findTitle} onChange={(findTitle) => set({ findTitle })} />
           <TextField label="Hours row title" value={contact.hoursTitle} onChange={(hoursTitle) => set({ hoursTitle })} />
@@ -798,6 +823,23 @@ function OrderTab() {
         <TextField label="Eyebrow" value={order.emptyEyebrow} onChange={(emptyEyebrow) => set({ emptyEyebrow })} />
         <TextField label="Heading" value={order.emptyTitle} onChange={(emptyTitle) => set({ emptyTitle })} />
         <TextAreaField label="Paragraph" value={order.emptyText} onChange={(emptyText) => set({ emptyText })} />
+        <TextField label="Button label" value={order.emptyCta} onChange={(emptyCta) => set({ emptyCta })} />
+      </AdminSection>
+
+      <AdminSection title="Order summary (right side of the page)">
+        <AdminGrid>
+          <TextField label="Eyebrow" value={order.summaryEyebrow} onChange={(summaryEyebrow) => set({ summaryEyebrow })} />
+          <TextField label="Heading" value={order.summaryTitle} onChange={(summaryTitle) => set({ summaryTitle })} />
+        </AdminGrid>
+        <TextField label="Message preview label" value={order.summaryPreviewLabel} onChange={(summaryPreviewLabel) => set({ summaryPreviewLabel })} />
+        <TextAreaField
+          label="Note about unset prices"
+          value={order.summaryNote}
+          onChange={(summaryNote) => set({ summaryNote })}
+          hint="Only shown while a product has no price."
+        />
+        <TextAreaField label="Small print under the button" value={order.disclaimer} onChange={(disclaimer) => set({ disclaimer })} />
+        <TextField label="Checkout button label" value={order.checkoutLabel} onChange={(checkoutLabel) => set({ checkoutLabel })} />
       </AdminSection>
     </>
   );

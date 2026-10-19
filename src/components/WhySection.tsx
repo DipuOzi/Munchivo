@@ -23,7 +23,7 @@ export function WhySection() {
           </Reveal>
           <Reveal className="why2-head-aside" delay={0.1}>
             <p>{home.whyAside}</p>
-            <Link to="/menu" className="text-link text-link--dark">See the full lineup <ArrowUpRight size={18} aria-hidden="true" /></Link>
+            <Link to="/menu" className="text-link text-link--dark">{home.whyLinkLabel} <ArrowUpRight size={18} aria-hidden="true" /></Link>
           </Reveal>
         </div>
 
@@ -47,7 +47,7 @@ export function WhySection() {
                 <h3>{card.title}</h3>
                 <p>{card.text}</p>
                 <Link to="/menu" className="why2-link" aria-label={`${card.title} — explore the menu`}>
-                  Explore <ArrowRight size={16} aria-hidden="true" />
+                  {home.whyCardCta} <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </div>
             </motion.article>

@@ -105,6 +105,13 @@ export type SiteContent = {
       heroSecondaryCta: string;
       heroTrust: string;
       heroFanLabel: string;
+      signatureLinkLabel: string;
+      experiencePrimaryCta: string;
+      experienceSecondaryCta: string;
+      statementPrimaryCta: string;
+      statementSecondaryCta: string;
+      whyLinkLabel: string;
+      whyCardCta: string;
     };
     menu: {
       heroImage: string;
@@ -115,6 +122,8 @@ export type SiteContent = {
       sectionEyebrow: string;
       sectionTitle: string;
       sectionText: string;
+      bottomHeading: string;
+      bottomLinkLabel: string;
     };
     about: {
       heroImage: string;
@@ -135,6 +144,8 @@ export type SiteContent = {
       lineupTitleLine1: string;
       lineupTitleLine2: string;
       lineupText: string;
+      whyCta: string;
+      lineupCta: string;
     };
     contact: {
       heroImage: string;
@@ -153,6 +164,9 @@ export type SiteContent = {
       socialTitleLine1: string;
       socialTitleLine2: string;
       socialText: string;
+      whatsappCta: string;
+      orderPrompt: string;
+      orderLinkLabel: string;
     };
     order: {
       eyebrowPrefix: string;
@@ -164,6 +178,13 @@ export type SiteContent = {
       emptyEyebrow: string;
       emptyTitle: string;
       emptyText: string;
+      emptyCta: string;
+      summaryEyebrow: string;
+      summaryTitle: string;
+      summaryPreviewLabel: string;
+      summaryNote: string;
+      checkoutLabel: string;
+      disclaimer: string;
     };
     shared: {
       footerTagline: string;
@@ -358,6 +379,13 @@ export const DEFAULT_CONTENT: SiteContent = {
       heroSecondaryCta: "Take a look",
       heroTrust: "No app. No card. Pay at the cart.",
       heroFanLabel: "grab a favorite",
+      signatureLinkLabel: "Explore the full menu",
+      experiencePrimaryCta: "Start your order",
+      experienceSecondaryCta: "Get to know Munchivo",
+      statementPrimaryCta: "Find your favorite",
+      statementSecondaryCta: "Order on WhatsApp",
+      whyLinkLabel: "See the full lineup",
+      whyCardCta: "Explore",
       whyCards: [
         {
           num: "01",
@@ -394,6 +422,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       sectionEyebrow: "THE LINEUP / 06 ITEMS",
       sectionTitle: "All the good stuff.",
       sectionText: "Pick your quantity, add to your order, or send a single item straight to WhatsApp.",
+      bottomHeading: "Found what you are looking for?",
+      bottomLinkLabel: "Review your order",
     },
     about: {
       heroImage: "/images/cart-experience.jpg",
@@ -428,6 +458,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       lineupTitleLine1: "A little something",
       lineupTitleLine2: "for your mood.",
       lineupText: "From savory bites to a warm or cold sip, the Munchivo menu keeps the choice simple.",
+      whyCta: "Taste the result",
+      lineupCta: "Explore the menu",
     },
     contact: {
       heroImage: "/images/masala-tea.jpg",
@@ -446,6 +478,9 @@ export const DEFAULT_CONTENT: SiteContent = {
       socialTitleLine1: "Find us",
       socialTitleLine2: "online.",
       socialText: "New drops, cart spots and everyday cravings. Follow along.",
+      whatsappCta: "Chat on WhatsApp",
+      orderPrompt: "Already picked your favorites?",
+      orderLinkLabel: "Review your order",
     },
     order: {
       eyebrowPrefix: "YOUR ORDER",
@@ -457,6 +492,14 @@ export const DEFAULT_CONTENT: SiteContent = {
       emptyEyebrow: "NOTHING IN THE BAG YET",
       emptyTitle: "A good order starts somewhere.",
       emptyText: "Your bag is empty. Find something that sounds good on the menu and add it here.",
+      emptyCta: "Explore the menu",
+      summaryEyebrow: "ONE LAST LOOK",
+      summaryTitle: "Order summary",
+      summaryPreviewLabel: "Preview WhatsApp message",
+      summaryNote:
+        "Prices are not set yet. Your message will show them as \"To be confirmed\" until actual prices are added.",
+      checkoutLabel: "Checkout via WhatsApp",
+      disclaimer: "Opens WhatsApp with your order pre-filled. Pay at the cart - no online payment.",
     },
     shared: {
       footerTagline: "Good food for wherever the day takes you.",

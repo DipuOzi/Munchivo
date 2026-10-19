@@ -36,9 +36,9 @@ export function MenuPage() {
             ))}
           </div>
           <Reveal className="menu-bottom-link">
-            <span>Found what you are looking for?</span>
+            <span>{menu.bottomHeading}</span>
             <Link to="/order" className="text-link text-link--dark">
-              Review your order{itemCount > 0 ? ` (${itemCount})` : ""} <ArrowUpRight size={19} aria-hidden="true" />
+              {menu.bottomLinkLabel}{itemCount > 0 ? ` (${itemCount})` : ""} <ArrowUpRight size={19} aria-hidden="true" />
             </Link>
           </Reveal>
         </div>

@@ -36,8 +36,8 @@ export function ContactPage() {
             <span className="eyebrow eyebrow--orange">{contact.introEyebrow}</span>
             <h2 id="contact-details-title">{contact.introTitleLine1}<br /><em>{contact.introTitleLine2}</em></h2>
             <p>{contact.introText}</p>
-            <button type="button" className="button button--orange" onClick={openContact}>Chat on WhatsApp <ArrowUpRight size={19} aria-hidden="true" /></button>
-            <span className="contact-order-hint">Already picked your favorites? <Link to="/order">Review your order</Link></span>
+            <button type="button" className="button button--orange" onClick={openContact}>{contact.whatsappCta} <ArrowUpRight size={19} aria-hidden="true" /></button>
+            <span className="contact-order-hint">{contact.orderPrompt} <Link to="/order">{contact.orderLinkLabel}</Link></span>
           </Reveal>
 
           <div className="contact-details">

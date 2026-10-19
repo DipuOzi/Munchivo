@@ -171,7 +171,7 @@ export function HomePage() {
             </Reveal>
             <Reveal className="section-heading-aside" delay={0.1}>
               <p>{home.signatureAside}</p>
-              <Link to="/menu" className="text-link text-link--dark">Explore the full menu <ArrowUpRight size={18} aria-hidden="true" /></Link>
+              <Link to="/menu" className="text-link text-link--dark">{home.signatureLinkLabel} <ArrowUpRight size={18} aria-hidden="true" /></Link>
             </Reveal>
           </div>
           <div className="product-grid">

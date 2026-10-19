@@ -34,7 +34,7 @@ export function OrderPage() {
               <span className="eyebrow eyebrow--orange">{order.emptyEyebrow}</span>
               <h2>{order.emptyTitle}</h2>
               <p>{order.emptyText}</p>
-              <Link to="/menu" className="button button--orange">Explore the menu <ArrowUpRight size={19} aria-hidden="true" /></Link>
+              <Link to="/menu" className="button button--orange">{order.emptyCta} <ArrowUpRight size={19} aria-hidden="true" /></Link>
             </Reveal>
           ) : (
             <div className="order-layout">
@@ -71,8 +71,8 @@ export function OrderPage() {
               </div>
 
               <aside className="order-summary" aria-labelledby="summary-title">
-                <span className="eyebrow eyebrow--orange">ONE LAST LOOK</span>
-                <h2 id="summary-title">Order summary</h2>
+                <span className="eyebrow eyebrow--orange">{order.summaryEyebrow}</span>
+                <h2 id="summary-title">{order.summaryTitle}</h2>
                 <div className="summary-lines">
                   {entries.map(({ product, quantity }) => (
                     <div className="summary-line" key={product.id}>
@@ -82,15 +82,15 @@ export function OrderPage() {
                   ))}
                 </div>
                 <div className="summary-total"><span>Total</span><strong>{hasMissingPrices ? "To be confirmed" : money(totalAmount)}</strong></div>
-                {hasMissingPrices && <p className="price-note">Prices are not set yet. Your message will show them as "To be confirmed" until actual prices are added.</p>}
+                {hasMissingPrices && <p className="price-note">{order.summaryNote}</p>}
                 <details className="message-preview">
-                  <summary>Preview WhatsApp message <ChevronDown size={17} aria-hidden="true" /></summary>
+                  <summary>{order.summaryPreviewLabel} <ChevronDown size={17} aria-hidden="true" /></summary>
                   <pre>{buildOrderMessage(entries, { currencyLabel, siteName })}</pre>
                 </details>
                 <button type="button" className="button button--orange checkout-button" onClick={() => openCheckout(entries)}>
-                  Checkout via WhatsApp <ArrowUpRight size={19} aria-hidden="true" />
+                  {order.checkoutLabel} <ArrowUpRight size={19} aria-hidden="true" />
                 </button>
-                <p className="checkout-disclaimer">Opens WhatsApp with your order pre-filled. Pay at the cart — no online payment.</p>
+                <p className="checkout-disclaimer">{order.disclaimer}</p>
               </aside>
             </div>
           )}
