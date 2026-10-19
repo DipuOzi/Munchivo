@@ -639,7 +639,7 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .hdr-actions { gap: 6px; }
   .brand-wordmark { font-size: 27px; }
   .brand-logo { max-width: 210px; max-height: 48px; }
-  .mnav-inner { padding-top: 110px; }
+  .mnav-inner { padding-top: 130px; }
   .mnav-link { grid-template-columns: 30px 1fr auto; padding: 13px 0; }
   .mnav-num { font-size: 10.5px; }
   .mnav-label { font-size: clamp(30px, 8.2vw, 42px); }
@@ -673,6 +673,15 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
   .hero-card[data-slot="4"] { --tx: calc(var(--lane) * 2); --ty: -46px; --rot: 5deg; }
   .hero-buttons { margin-top: 24px; }
   .button { min-height: 50px; padding: 12px 19px; font-size: 12.5px; }
+  /* Clear the (taller) mobile header so content never crowds it. */
+  .home-hero-inner { padding-top: clamp(160px, 21vh, 200px); }
+  /* Social band: copy first, then the three cards get the full row width. */
+  .social-inner { grid-template-columns: 1fr; align-items: start; gap: 36px; }
+  .social-section h2 { font-size: clamp(42px, 11vw, 60px); }
+  .social-card { min-height: 118px; padding: 16px 14px; }
+  .social-card-name { font-size: 17px; }
+  .social-card-action { gap: 5px; font-size: 9.5px; }
+  .social-icon { width: 84px; height: 84px; }
   .button-group { gap: 19px; }
   .signature-section, .why2, .menu-section, .about-people, .about-why, .about-lineup, .contact-section { padding-top: 83px; padding-bottom: 90px; }
   .section-heading--split { display: block; }
