@@ -285,7 +285,12 @@ h1, h2, h3, p { margin: 0; }
 .sb-pill { display: inline-flex; align-items: center; gap: 8px; padding: 9px 17px; border-radius: 100px; border: 1px solid rgba(9, 35, 40, 0.3); background: rgba(251, 248, 240, 0.22); color: var(--dark); font-size: 10px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; backdrop-filter: blur(4px); }
 .sb-pill svg { color: var(--dark); }
 .sb-title { margin-top: 26px; font-family: "Bricolage Grotesque", sans-serif; font-size: clamp(56px, 6.4vw, 104px); font-weight: 800; line-height: 0.92; letter-spacing: -0.045em; }
-.sb-mask { display: block; overflow: hidden; padding-bottom: 0.09em; margin-bottom: -0.09em; }
+/* Overflow clip for the line-rise reveal. The window needs ~0.15em of
+   bottom headroom: at line-height 0.92 the glyph descenders (g, y, p — and
+   the deeper serif italic ones) reach past the line box, so anything less
+   shaves the tail off letters like the "g" in "Good things". The matching
+   negative margin keeps the line rhythm identical. */
+.sb-mask { display: block; overflow: hidden; padding-bottom: 0.15em; margin-bottom: -0.15em; }
 .sb-mask > span { display: inline-block; will-change: transform; }
 .sb-title em { font-family: "Instrument Serif", serif; font-weight: 400; color: #fbf8f0; letter-spacing: -0.045em; }
 .sb-sub { max-width: 400px; margin-top: 26px; font-size: 16px; line-height: 1.7; color: #511414; }
