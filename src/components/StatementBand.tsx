@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useOrderIntent } from "../hooks/useOrderIntent";
@@ -15,11 +15,20 @@ const line = {
 
 export function StatementBand() {
   const ref = useRef<HTMLElement | null>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
   const reduceMotion = useReducedMotion();
   const still = reduceMotion ?? false;
   const orderIntent = useOrderIntent();
   const { content } = useContent();
   const home = content.pages.home;
+
+  /* The scroll-linked title reveal must be driven from the h2 itself —
+     observing the translated line spans is unreliable (the Intersection
+     Observer measures their shifted, overflow-clipped box, which can stay
+     "not visible" forever), so the heading occasionally never revealed
+     until a reload. Observing the static h2 makes this deterministic. */
+  const titleShown = useInView(titleRef, { once: true, amount: 0.35 });
+
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
 
   const mainImgY = useTransform(scrollYProgress, [0, 1], [-30, 30]);
@@ -38,10 +47,10 @@ export function StatementBand() {
         <div className="sb-copy">
           <span className="sb-pill"><Flame size={13} aria-hidden="true" /> {home.statementPill}</span>
 
-          <h2 id="statement-title" className="sb-title">
-            <span className="sb-mask"><motion.span variants={line} initial={still ? false : "hidden"} whileInView="show" viewport={{ once: true, amount: 0.5 }} custom={0}>{home.statementLine1}</motion.span></span>
-            <span className="sb-mask"><motion.span variants={line} initial={still ? false : "hidden"} whileInView="show" viewport={{ once: true, amount: 0.5 }} custom={1}>{home.statementLine2}</motion.span></span>
-            <span className="sb-mask"><motion.span variants={line} initial={still ? false : "hidden"} whileInView="show" viewport={{ once: true, amount: 0.5 }} custom={2}><em>{home.statementLine3}</em></motion.span></span>
+          <h2 ref={titleRef} id="statement-title" className="sb-title">
+            <span className="sb-mask"><motion.span variants={line} initial={still ? false : "hidden"} animate={still || titleShown ? "show" : "hidden"} custom={0}>{home.statementLine1}</motion.span></span>
+            <span className="sb-mask"><motion.span variants={line} initial={still ? false : "hidden"} animate={still || titleShown ? "show" : "hidden"} custom={1}>{home.statementLine2}</motion.span></span>
+            <span className="sb-mask"><motion.span variants={line} initial={still ? false : "hidden"} animate={still || titleShown ? "show" : "hidden"} custom={2}><em>{home.statementLine3}</em></motion.span></span>
           </h2>
 
           <p className="sb-sub">{home.statementText}</p>
