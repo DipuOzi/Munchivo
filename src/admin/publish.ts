@@ -17,6 +17,7 @@
 import { blobForRef, refForUrl, REF_PREFIX } from "./imageStore";
 import { ADMIN_CODE } from "./adminCode";
 import { buildFreshness, isDevRuntime } from "../version";
+import { flushApprovedDeletions } from "../reviewApi";
 import type { SiteContent } from "../content/defaults";
 
 const API_URL = "/api/publish";
@@ -255,14 +256,29 @@ function processQueue() {
   queue.running = true;
   void (async () => {
     try {
+      let committed = false;
       if (isDevRuntime()) {
-        setStatus({ state: "local-only" });
+        // Dev mode: the vite dev-server middleware simulates the GitHub
+        // pipeline and writes the files straight into the repo worktree, so
+        // the whole pending-review -> approve -> publish flow is testable on
+        // localhost. Without that middleware, behave like before (local only).
+        try {
+          await commit(content);
+          committed = true;
+        } catch {
+          setStatus({ state: "local-only" });
+        }
       } else if (JSON.stringify(content) !== lastPublishedJson) {
         await commit(content);
-        lastPublishedJson = JSON.stringify(content);
-        lastRequested = content;
+        committed = true;
       } else {
         setStatus({ state: "published" });
+      }
+      if (committed) {
+        lastPublishedJson = JSON.stringify(content);
+        lastRequested = content;
+        // The content commit is out — approved reviews can leave the queue.
+        void flushApprovedDeletions();
       }
     } catch (error) {
       setStatus({ state: "failed", message: error instanceof Error ? error.message : "Unknown error" });

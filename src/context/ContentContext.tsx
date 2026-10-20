@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { DEFAULT_CONTENT, type Review, type SiteContent } from "../content/defaults";
+import { DEFAULT_CONTENT, type SiteContent } from "../content/defaults";
 import { isPlainObject, migrateDataUrl, pruneImages, REF_PREFIX, refForUrl, urlForRef } from "../admin/imageStore";
 
 const STORAGE_KEY = "munchivo-content-v1";
@@ -10,8 +10,6 @@ type ContentContextValue = {
   setContent: (next: SiteContent) => void;
   /** Restores the built-in defaults. */
   resetContent: () => void;
-  /** Adds a visitor review to the top of the review wall (used by the reviews page). */
-  addReview: (review: Omit<Review, "id">) => void;
   /** Set when the browser refuses to persist changes (usually storage full). */
   saveError: string | null;
 };
@@ -253,20 +251,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const setContent = useCallback((next: SiteContent) => setContentState(next), []);
   const resetContent = useCallback(() => setContentState(DEFAULT_CONTENT), []);
-  const addReview = useCallback((review: Omit<Review, "id">) => {
-    const id = `review-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    setContentState((current) => ({
-      ...current,
-      reviews: {
-        ...current.reviews,
-        list: [{ ...review, id }, ...current.reviews.list],
-      },
-    }));
-  }, []);
 
   const value = useMemo<ContentContextValue>(
-    () => ({ content, setContent, resetContent, addReview, saveError }),
-    [content, setContent, resetContent, addReview, saveError],
+    () => ({ content, setContent, resetContent, saveError }),
+    [content, setContent, resetContent, saveError],
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;

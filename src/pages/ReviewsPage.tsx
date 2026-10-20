@@ -3,15 +3,16 @@ import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Sparkles, Star } from "lucide-react";
 import { useContent } from "../context/ContentContext";
 import { Reveal } from "../components/PageElements";
+import { submitReview } from "../reviewApi";
 import type { Review } from "../content/defaults";
 
-function Stars({ rating }: { rating: number }) {
+function Stars({ rating, size = 17 }: { rating: number; size?: number }) {
   return (
     <span className="rvw-stars" role="img" aria-label={`Rated ${rating} out of 5`}>
       {[1, 2, 3, 4, 5].map((step) => (
         <Star
           key={step}
-          size={17}
+          size={size}
           strokeWidth={0}
           aria-hidden="true"
           className={step <= rating ? "rvw-star--on" : "rvw-star--off"}
@@ -47,7 +48,7 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
 }
 
 function ReviewForm() {
-  const { content, addReview } = useContent();
+  const { content } = useContent();
   const reviews = content.reviews;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -55,8 +56,9 @@ function ReviewForm() {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [posted, setPosted] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (name.trim().length < 2) {
       setError("Write your name (at least 2 characters) so people know who said it.");
@@ -71,18 +73,32 @@ function ReviewForm() {
       return;
     }
     setError(null);
-    addReview({
-      name: name.trim(),
-      email: email.trim(),
-      rating,
-      text: text.trim(),
-    });
-    setName("");
-    setEmail("");
-    setRating(5);
-    setText("");
-    setPosted(true);
-    window.setTimeout(() => setPosted(false), 5000);
+    setSending(true);
+    try {
+      // Goes to the server's pending queue — visible to the admin on any
+      // device, and public once approved. Nothing touches localStorage.
+      await submitReview({
+        name: name.trim(),
+        email: email.trim(),
+        rating,
+        text: text.trim(),
+      });
+      setName("");
+      setEmail("");
+      setRating(5);
+      setText("");
+      setPosted(true);
+      window.setTimeout(() => setPosted(false), 5000);
+    } catch (caused) {
+      const message = caused instanceof Error ? caused.message : "";
+      if (/queue is full|hold on/i.test(message)) {
+        setError("The review queue is warming up — please try again in a little while.");
+      } else {
+        setError("Could not send your review right now — please try again in a moment.");
+      }
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -158,7 +174,9 @@ function ReviewForm() {
         {error && <p className="rvw-error" role="alert">{error}</p>}
 
         <div className="rvw-form-foot">
-          <button type="submit" className="button button--dark">{reviews.submitLabel}</button>
+          <button type="submit" className="button button--dark" disabled={sending}>
+            {sending ? "Sending…" : reviews.submitLabel}
+          </button>
           {posted && (
             <p className="rvw-success" role="status">
               <CheckCircle2 size={17} aria-hidden="true" /> {reviews.successNote}
@@ -167,6 +185,43 @@ function ReviewForm() {
         </div>
       </form>
     </div>
+  );
+}
+
+/** Average rating + review count + star distribution, shown as a strip above the form. */
+function ReviewStats({ list }: { list: Review[] }) {
+  const count = list.length;
+  if (!count) return null; // nothing to summarise yet — keep the band clean
+  const average = list.reduce((sum, review) => sum + review.rating, 0) / count;
+  const rows = [5, 4, 3, 2, 1].map((stars) => {
+    const n = list.filter((review) => review.rating === stars).length;
+    return { stars, n, pct: Math.round((n / count) * 100) };
+  });
+  return (
+    <aside className="rvw-stats" aria-label="Review summary">
+      <div className="rvw-stats-summary">
+        <span className="rvw-stats-eyebrow">AT A GLANCE</span>
+        <div className="rvw-stats-score" role="img" aria-label={`Average rating ${average.toFixed(1)} out of 5`}>
+          <span className="rvw-stats-number">{average.toFixed(1)}</span>
+          <span className="rvw-stats-of">out of 5</span>
+        </div>
+        <Stars rating={Math.round(average)} size={18} />
+        <p className="rvw-stats-count">
+          {count} customer review{count === 1 ? "" : "s"}
+        </p>
+      </div>
+      <ul className="rvw-stats-bars">
+        {rows.map(({ stars, n, pct }) => (
+          <li key={stars} aria-label={`${n} of ${count} reviews rated ${stars} star${stars === 1 ? "" : "s"}`}>
+            <span className="rvw-stats-star" aria-hidden="true">{stars}★</span>
+            <span className="rvw-stats-track" aria-hidden="true">
+              <span className="rvw-stats-fill" style={{ width: `${pct}%` }} />
+            </span>
+            <span className="rvw-stats-num" aria-hidden="true">{n}</span>
+          </li>
+        ))}
+      </ul>
+    </aside>
   );
 }
 
@@ -208,6 +263,9 @@ export function ReviewsPage() {
               <span className="rvw-more-count">{remaining} more</span>
             </button>
           )}
+          <Reveal delay={0.06}>
+            <ReviewStats list={reviews.list} />
+          </Reveal>
         </div>
       </section>
 

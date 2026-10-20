@@ -1,11 +1,12 @@
-import { createContext, useContext, useEffect, useRef, useState, type RefObject } from "react";
-import { Download, ExternalLink, Lock, LogOut, Plus, RotateCcw, Save, Upload } from "lucide-react";
+import { createContext, useContext, useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { CheckCircle2, Download, ExternalLink, Lock, LogOut, Plus, RotateCcw, Save, Trash2, Upload } from "lucide-react";
 import { useContent } from "../context/ContentContext";
 import { DEFAULT_CONTENT, type Product, type Review, type SiteContent, type TeamMember } from "../content/defaults";
 import { AdminGrid, AdminSection, ImageField, ListControls, TextAreaField, TextField } from "./fields";
 import { fitContentForStorage, estimateContentBytes } from "./imageUpload";
 import { ADMIN_CODE } from "./adminCode";
 import { onPublishStatus, requestPublishNow, type PublishState } from "./publish";
+import { deletePendingReview, fetchPendingReviews, markPendingApproved, type PendingReview } from "../reviewApi";
 import { buildFreshness } from "../version";
 import "./admin.css";
 
@@ -957,6 +958,127 @@ function TeamTab() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Pending review moderation                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Moderation queue for reviews submitted from the website. Sourced from the
+ * cross-device server queue (data/pending-reviews.json in the repo). Approve
+ * adds the entry to the wall draft; only "Save & publish" makes it public
+ * (and removes it from the queue). Reject deletes it outright.
+ */
+function PendingReviewPanel() {
+  const { draft, actions } = useAdmin();
+  const [items, setItems] = useState<PendingReview[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const list = await fetchPendingReviews();
+      setItems(list);
+      setError(null);
+    } catch (caused) {
+      setError(caused instanceof Error ? caused.message : "Could not load the pending reviews.");
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  /**
+   * Reviews already added to the draft (approved here, or merged from elsewhere)
+   * are hidden from the queue — a refreshed list must not show them twice.
+   */
+  const wallIds = new Set(draft.reviews.list.map((review) => review.id));
+
+  function approve(pending: PendingReview) {
+    actions.updateReviews((current) => ({
+      ...current,
+      list: [
+        {
+          id: pending.id,
+          name: pending.name,
+          email: pending.email,
+          rating: pending.rating,
+          text: pending.text,
+          date: pending.date,
+        },
+        ...current.list,
+      ],
+    }));
+    // Server cleanup waits for the content commit (see publish.ts) so a failed
+    // publish can never lose the review.
+    markPendingApproved(pending.id);
+    setItems((current) => (current ?? []).filter((item) => item.id !== pending.id));
+    setNote(`Added ${pending.name}'s review to the wall draft — click Save & publish in the top bar to make it live.`);
+  }
+
+  async function reject(pending: PendingReview) {
+    if (!window.confirm(`Reject and delete ${pending.name}'s review? This cannot be undone.`)) return;
+    setBusyId(pending.id);
+    try {
+      await deletePendingReview(pending.id);
+      setItems((current) => (current ?? []).filter((item) => item.id !== pending.id));
+      setNote("Review rejected and deleted.");
+      setError(null);
+    } catch (caused) {
+      setError(caused instanceof Error ? caused.message : "Could not delete that review — try again.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <AdminSection
+      title="Pending reviews"
+      description="Review submissions from the website, one queue across all devices. Approve adds the review to the wall draft (then Save & publish makes it public); Reject deletes it."
+    >
+      {error && <p className="adm-note adm-note--warn">{error}</p>}
+      {note && <p className="adm-note">{note}</p>}
+      {items === null && !error && <p className="adm-note">Loading pending reviews…</p>}
+      {items !== null && items.length === 0 && <p className="adm-note">No pending reviews right now.</p>}
+      {items
+        ?.filter((item) => !wallIds.has(item.id))
+        .map((pending) => (
+          <div className="adm-item adm-pending" key={pending.id}>
+            <div className="adm-item-head">
+              <strong>{pending.name}</strong>
+              <span className="adm-pending-meta" aria-label={`Rated ${pending.rating} out of 5`}>
+                {"★".repeat(pending.rating)}
+                {"☆".repeat(5 - pending.rating)}
+              </span>
+              <div className="adm-actions-row">
+                <button
+                  type="button"
+                  className="adm-btn adm-btn--small"
+                  disabled={busyId === pending.id}
+                  onClick={() => approve(pending)}
+                >
+                  <CheckCircle2 size={14} aria-hidden="true" /> Approve
+                </button>
+                <button
+                  type="button"
+                  className="adm-btn adm-btn--small adm-btn--danger"
+                  disabled={busyId === pending.id}
+                  onClick={() => void reject(pending)}
+                >
+                  <Trash2 size={14} aria-hidden="true" /> Reject
+                </button>
+              </div>
+            </div>
+            <p className="adm-pending-text">{pending.text}</p>
+            <p className="adm-pending-meta">
+              {pending.email} · {new Date(pending.date).toLocaleString()}
+            </p>
+          </div>
+        ))}
+    </AdminSection>
+  );
+}
+
 function ReviewsTab() {
   const { draft, actions } = useAdmin();
   const reviews = draft.reviews;
@@ -968,6 +1090,7 @@ function ReviewsTab() {
 
   return (
     <>
+      <PendingReviewPanel />
       <AdminSection title="Reviews page">
         <AdminGrid>
           <TextField label="Eyebrow" value={reviews.heroEyebrow} onChange={(heroEyebrow) => actions.updateReviews((current) => ({ ...current, heroEyebrow }))} />

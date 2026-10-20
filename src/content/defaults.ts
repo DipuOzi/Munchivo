@@ -28,6 +28,8 @@ export type Review = {
   /** 1–5 stars. */
   rating: number;
   text: string;
+  /** Submission time (ISO) — set on reviews approved from the pending queue. */
+  date?: string;
 };
 
 export type Step = { title: string; text: string };
@@ -296,12 +298,12 @@ export const DEFAULT_CONTENT: SiteContent = {
       "Real things people said after a stop at the cart. Read a few — then scroll down and leave your own.",
     heroImage: "/images/hero-street-food.jpg",
     formHeading: "Tried something from the cart?",
-    formText: "Leave a quick review — how was the bite, the sip, the stop? Your words go straight onto the wall below.",
+    formText: "Leave a quick review — how was the bite, the sip, the stop? Your words go to our team first, then straight onto the wall.",
     namePlaceholder: "Your name",
     emailPlaceholder: "you@example.com",
     reviewPlaceholder: "How was it? Keep it honest.",
     submitLabel: "Post my review",
-    successNote: "Thank you — your review is on the wall.",
+    successNote: "Thank you — your review is in. It will appear on the wall shortly.",
     list: [
       {
         id: "rv-sadia",

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .vercel/
+.local-data/
 *.local
 .DS_Store
 Thumbs.db
