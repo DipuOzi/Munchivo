@@ -323,7 +323,7 @@ export const DEFAULT_CONTENT: SiteContent = {
         id: "rv-nusrat",
         name: "Nusrat J.",
         email: "nusrat.j@example.com",
-        rating: 4,
+        rating: 5,
         text: "Fresh, fast and full of flavor. The pasta was still steaming when I got back to the office.",
       },
       {
