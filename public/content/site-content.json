@@ -48,11 +48,11 @@
     },
     {
       "id": "pasta",
-      "name": "Pasta",
+      "name": "Fried Egg Sando",
       "description": "Comfort in a bowl, ready to take along.",
-      "image": "/images/pasta.jpg",
+      "image": "/uploads/img-mvq3qluv-zxbl4o.jpg",
       "imageAlt": "A bowl of saucy pasta at a food cart",
-      "price": 180
+      "price": 80
     },
     {
       "id": "milkshake",
