@@ -32,11 +32,11 @@
     },
     {
       "id": "masala-tea",
-      "name": "Masala Tea",
-      "description": "A warming sip for the moments in between.",
-      "image": "/images/masala-tea.jpg",
-      "imageAlt": "A steaming cup of masala tea",
-      "price": 40
+      "name": "Japanese Sando",
+      "description": "A soft, savory bite for the moments in between.",
+      "image": "/uploads/img-mvq39a97-5mgtxh.jpg",
+      "imageAlt": "A soft, fluffy Japanese sando filled with rich, creamy egg goodness.",
+      "price": 60
     },
     {
       "id": "patenga-piyaju",
