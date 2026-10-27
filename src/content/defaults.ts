@@ -20,6 +20,22 @@ export type TeamMember = {
   imageAlt: string;
 };
 
+export type MenuOffer = {
+  /** Product this deal applies to (matched by product id). */
+  productId: string;
+  /** How many units the offer is for. */
+  quantity: number;
+  /** Total price for `quantity` units. */
+  dealPrice: number;
+};
+
+export type BundleTier = {
+  /** How many DIFFERENT products unlock the tier. */
+  count: number;
+  /** Discount at that tier, as a whole-number percent (e.g. 10 = 10%). */
+  discountPercent: number;
+};
+
 export type Review = {
   id: string;
   name: string;
@@ -67,6 +83,11 @@ export type SiteContent = {
     successNote: string;
     /** The review wall — newest first. */
     list: Review[];
+    /** Decorative polaroids beside the submission form (product ids + captions). */
+    visualOneId: string;
+    visualTwoId: string;
+    visualCaptionOne: string;
+    visualCaptionTwo: string;
   };
   pages: {
     home: {
@@ -126,6 +147,30 @@ export type SiteContent = {
       sectionText: string;
       bottomHeading: string;
       bottomLinkLabel: string;
+      /** "Buy more, pay less" quantity deals. */
+      offers: {
+        eyebrow: string;
+        titleLine1: string;
+        titleLine2: string;
+        text: string;
+        ctaLabel: string;
+        items: MenuOffer[];
+      };
+      /** "Build your own bundle" discounts. */
+      bundles: {
+        eyebrow: string;
+        titleLine1: string;
+        titleLine2: string;
+        text: string;
+        tiers: BundleTier[];
+        addLabel: string;
+        addedLabel: string;
+        summaryEyebrow: string;
+        emptyHeading: string;
+        emptyNote: string;
+        ctaLabel: string;
+        note: string;
+      };
     };
     about: {
       heroImage: string;
@@ -219,9 +264,9 @@ export const DEFAULT_CONTENT: SiteContent = {
       id: "meatbox",
       name: "MeatBox",
       description: "A hearty box built for your biggest street-food craving.",
-      image: "/images/meatbox.jpg",
+      image: "/uploads/img-mvfdgki0-fya8wz.webp",
       imageAlt: "A takeaway box of grilled meat on a food cart counter",
-      price: 250,
+      price: 100,
     },
     {
       id: "mini-burger",
@@ -233,27 +278,27 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     {
       id: "masala-tea",
-      name: "Masala Tea",
-      description: "A warming sip for the moments in between.",
-      image: "/images/masala-tea.jpg",
-      imageAlt: "A steaming cup of masala tea",
-      price: 40,
+      name: "Japanese Sando",
+      description: "A soft, savory bite for the moments in between.",
+      image: "/uploads/img-mvq39a97-5mgtxh.jpg",
+      imageAlt: "A soft, fluffy Japanese sando filled with rich, creamy egg goodness.",
+      price: 60,
     },
     {
       id: "patenga-piyaju",
       name: "Patenga Piyaju",
       description: "Golden, crisp bites with street-side character.",
-      image: "/images/patenga-piyaju.jpg",
+      image: "/uploads/img-mvf7sbxe-plqosu.jpg",
       imageAlt: "Golden piyaju fritters in a paper-lined tray",
       price: 60,
     },
     {
       id: "pasta",
-      name: "Pasta",
+      name: "Fried Egg Sando",
       description: "Comfort in a bowl, ready to take along.",
-      image: "/images/pasta.jpg",
+      image: "/uploads/img-mvq3qluv-zxbl4o.jpg",
       imageAlt: "A bowl of saucy pasta at a food cart",
-      price: 180,
+      price: 80,
     },
     {
       id: "milkshake",
@@ -304,6 +349,10 @@ export const DEFAULT_CONTENT: SiteContent = {
     reviewPlaceholder: "How was it? Keep it honest.",
     submitLabel: "Post my review",
     successNote: "Thank you — your review is in. It will appear on the wall shortly.",
+    visualOneId: "masala-tea",
+    visualTwoId: "pasta",
+    visualCaptionOne: "From the cart",
+    visualCaptionTwo: "Made fresh daily",
     list: [
       {
         id: "rv-sadia",
@@ -426,6 +475,35 @@ export const DEFAULT_CONTENT: SiteContent = {
       sectionText: "Pick your quantity, add to your order, or send a single item straight to WhatsApp.",
       bottomHeading: "Found what you are looking for?",
       bottomLinkLabel: "Review your order",
+      offers: {
+        eyebrow: "SPECIAL OFFERS",
+        titleLine1: "Buy more.",
+        titleLine2: "Pay less.",
+        text: "Deal prices on the menu favorites. Pick your quantity deal and check out on WhatsApp — the savings are already in the message.",
+        ctaLabel: "Get this offer",
+        items: [
+          { productId: "masala-tea", quantity: 3, dealPrice: 150 },
+          { productId: "pasta", quantity: 3, dealPrice: 210 },
+          { productId: "meatbox", quantity: 2, dealPrice: 180 },
+        ],
+      },
+      bundles: {
+        eyebrow: "BUILD YOUR BUNDLE",
+        titleLine1: "Make your own",
+        titleLine2: "bundle.",
+        text: "Choose the items you want in one go and the price updates itself: 3 different items get 10% off, and 4 different items get 13% off.",
+        tiers: [
+          { count: 3, discountPercent: 10 },
+          { count: 4, discountPercent: 13 },
+        ],
+        addLabel: "Add to bundle",
+        addedLabel: "In the bundle",
+        summaryEyebrow: "YOUR PICKS",
+        emptyHeading: "Nothing yet",
+        emptyNote: "Your bundle is empty — tap items on the left to add them.",
+        ctaLabel: "Order this bundle",
+        note: "Totals update as you pick. The WhatsApp message carries your bundle price.",
+      },
     },
     about: {
       heroImage: "/images/cart-experience.jpg",

@@ -231,6 +231,8 @@ export function ReviewsPage() {
   const [visibleCount, setVisibleCount] = useState(12);
   const listed = reviews.list.slice(0, visibleCount);
   const remaining = reviews.list.length - visibleCount;
+  const burger = content.products.find((product) => product.id === reviews.visualOneId) ?? content.products[0];
+  const shake = content.products.find((product) => product.id === reviews.visualTwoId) ?? content.products[1] ?? content.products[0];
 
   return (
     <>
@@ -270,13 +272,31 @@ export function ReviewsPage() {
       </section>
 
       <section className="rvw-post" aria-labelledby="rvw-post-title">
-        <div className="site-container" id="leave-a-review">
-          <Reveal>
-            <span className="social-pill"><Sparkles size={13} aria-hidden="true" /> YOUR TURN</span>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <ReviewForm />
-          </Reveal>
+        <div className="site-container rvw-post-inner" id="leave-a-review">
+          <div className="rvw-post-copy">
+            <Reveal>
+              <span className="social-pill"><Sparkles size={13} aria-hidden="true" /> YOUR TURN</span>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <ReviewForm />
+            </Reveal>
+          </div>
+          <div className="rvw-visual" aria-hidden="true">
+            <div className="rvw-visual-ring">
+              <svg viewBox="0 0 400 400">
+                <circle cx="200" cy="200" r="196" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 10" />
+              </svg>
+            </div>
+            <figure className="rvw-visual-card rvw-visual-card--main">
+              <div className="rvw-visual-media"><img src={burger?.image} alt="" loading="lazy" decoding="async" /></div>
+              <figcaption><strong>{burger?.name}</strong><span>{reviews.visualCaptionOne}</span></figcaption>
+            </figure>
+            <figure className="rvw-visual-card rvw-visual-card--side">
+              <div className="rvw-visual-media"><img src={shake?.image} alt="" loading="lazy" decoding="async" /></div>
+              <figcaption><strong>{shake?.name}</strong><span>{reviews.visualCaptionTwo}</span></figcaption>
+            </figure>
+            <span className="rvw-visual-star"><Star size={26} strokeWidth={1.6} fill="currentColor" /></span>
+          </div>
         </div>
       </section>
     </>

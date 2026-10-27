@@ -2,7 +2,7 @@ import { createContext, useContext, useCallback, useEffect, useRef, useState, ty
 import { CheckCircle2, Download, ExternalLink, Lock, LogOut, Plus, RotateCcw, Save, Trash2, Upload } from "lucide-react";
 import { useContent } from "../context/ContentContext";
 import { DEFAULT_CONTENT, type Product, type Review, type SiteContent, type TeamMember } from "../content/defaults";
-import { AdminGrid, AdminSection, ImageField, ListControls, TextAreaField, TextField } from "./fields";
+import { AdminGrid, AdminSection, ImageField, ListControls, SelectField, TextAreaField, TextField } from "./fields";
 import { fitContentForStorage, estimateContentBytes } from "./imageUpload";
 import { ADMIN_CODE } from "./adminCode";
 import { onPublishStatus, requestPublishNow, type PublishState } from "./publish";
@@ -677,6 +677,148 @@ function MenuTab() {
         </AdminGrid>
         <p className="adm-note">The menu items themselves (names, prices, photos) are managed in the Products tab.</p>
       </AdminSection>
+
+      <AdminSection
+        title="Offers section (quantity deals)"
+        description="The “Buy more, pay less” cards under the menu. Each deal is a product, the quantity it applies to, and the total deal price."
+      >
+        <AdminGrid>
+          <TextField label="Eyebrow" value={menu.offers.eyebrow} onChange={(eyebrow) => set({ offers: { ...menu.offers, eyebrow } })} />
+          <TextField label="Heading line 1" value={menu.offers.titleLine1} onChange={(titleLine1) => set({ offers: { ...menu.offers, titleLine1 } })} />
+          <TextField label="Heading line 2 (italic)" value={menu.offers.titleLine2} onChange={(titleLine2) => set({ offers: { ...menu.offers, titleLine2 } })} />
+          <TextField label="Button label" value={menu.offers.ctaLabel} onChange={(ctaLabel) => set({ offers: { ...menu.offers, ctaLabel } })} />
+        </AdminGrid>
+        <TextAreaField label="Paragraph" value={menu.offers.text} onChange={(text) => set({ offers: { ...menu.offers, text } })} />
+        {menu.offers.items.map((offer, index) => (
+          <div className="adm-item" key={index}>
+            <div className="adm-item-head">
+              <strong>Offer {index + 1}{(() => {
+                const chosen = draft.products.find((product) => product.id === offer.productId);
+                return chosen ? ` · ${chosen.name}` : "";
+              })()}</strong>
+              <ListControls
+                index={index}
+                length={menu.offers.items.length}
+                onMove={(direction) =>
+                  set({ offers: { ...menu.offers, items: moveItem(menu.offers.items, index, direction) } })
+                }
+                onRemove={() => set({ offers: { ...menu.offers, items: removeAt(menu.offers.items, index) } })}
+                removeLabel="Remove offer"
+              />
+            </div>
+            <AdminGrid>
+              <SelectField
+                label="Product"
+                value={offer.productId}
+                options={draft.products.map((product) => ({ value: product.id, label: product.name || product.id }))}
+                onChange={(productId) => set({ offers: { ...menu.offers, items: replaceAt(menu.offers.items, index, { ...offer, productId }) } })}
+              />
+              <TextField
+                label="Quantity"
+                type="number"
+                value={String(offer.quantity)}
+                onChange={(value) => set({ offers: { ...menu.offers, items: replaceAt(menu.offers.items, index, { ...offer, quantity: Math.max(1, Math.round(Number(value) || 1)) }) } })}
+              />
+              <TextField
+                label="Deal price (total for the quantity)"
+                type="number"
+                value={String(offer.dealPrice)}
+                onChange={(value) => set({ offers: { ...menu.offers, items: replaceAt(menu.offers.items, index, { ...offer, dealPrice: Math.max(0, Math.round(Number(value) || 0)) }) } })}
+              />
+            </AdminGrid>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="adm-btn adm-btn--ghost adm-btn--small"
+          onClick={() =>
+            set({
+              offers: {
+                ...menu.offers,
+                items: [...menu.offers.items, { productId: draft.products[0]?.id ?? "", quantity: 2, dealPrice: 0 }],
+              },
+            })
+          }
+          disabled={draft.products.length === 0}
+        >
+          <Plus size={15} aria-hidden="true" /> Add offer
+        </button>
+      </AdminSection>
+
+      <AdminSection
+        title="Bundle builder section"
+        description="The “Make your own bundle” picker: guests pick different items and a tiered discount applies automatically. The hint messages are generated from the tiers below."
+      >
+        <AdminGrid>
+          <TextField label="Eyebrow" value={menu.bundles.eyebrow} onChange={(eyebrow) => set({ bundles: { ...menu.bundles, eyebrow } })} />
+          <TextField label="Heading line 1" value={menu.bundles.titleLine1} onChange={(titleLine1) => set({ bundles: { ...menu.bundles, titleLine1 } })} />
+          <TextField label="Heading line 2 (italic)" value={menu.bundles.titleLine2} onChange={(titleLine2) => set({ bundles: { ...menu.bundles, titleLine2 } })} />
+        </AdminGrid>
+        <TextAreaField
+          label="Paragraph"
+          value={menu.bundles.text}
+          onChange={(text) => set({ bundles: { ...menu.bundles, text } })}
+          hint="Mention the discounts here too — this text is free-form, so keep it in sync with the tiers."
+        />
+        <h3 className="adm-field-label" style={{ marginTop: 10 }}>Discount tiers</h3>
+        {menu.bundles.tiers.map((tier, index) => (
+          <div className="adm-item" key={index}>
+            <div className="adm-item-head">
+              <strong>Tier {index + 1}</strong>
+              <ListControls
+                index={index}
+                length={menu.bundles.tiers.length}
+                onMove={(direction) =>
+                  set({ bundles: { ...menu.bundles, tiers: moveItem(menu.bundles.tiers, index, direction) } })
+                }
+                onRemove={() => set({ bundles: { ...menu.bundles, tiers: removeAt(menu.bundles.tiers, index) } })}
+                removeLabel="Remove tier"
+              />
+            </div>
+            <AdminGrid>
+              <TextField
+                label="Different items in the bundle"
+                type="number"
+                value={String(tier.count)}
+                onChange={(value) => set({ bundles: { ...menu.bundles, tiers: replaceAt(menu.bundles.tiers, index, { ...tier, count: Math.max(1, Math.round(Number(value) || 1)) }) } })}
+              />
+              <TextField
+                label="Discount (%)"
+                type="number"
+                value={String(tier.discountPercent)}
+                onChange={(value) => set({ bundles: { ...menu.bundles, tiers: replaceAt(menu.bundles.tiers, index, { ...tier, discountPercent: Math.min(100, Math.max(0, Math.round(Number(value) || 0))) }) } })}
+              />
+            </AdminGrid>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="adm-btn adm-btn--ghost adm-btn--small"
+          onClick={() =>
+            set({
+              bundles: {
+                ...menu.bundles,
+                tiers: [...menu.bundles.tiers, { count: (menu.bundles.tiers.at(-1)?.count ?? 0) + 1, discountPercent: 10 }],
+              },
+            })
+          }
+        >
+          <Plus size={15} aria-hidden="true" /> Add tier
+        </button>
+        <AdminGrid>
+          <TextField label="Button label" value={menu.bundles.ctaLabel} onChange={(ctaLabel) => set({ bundles: { ...menu.bundles, ctaLabel } })} />
+          <TextField label="Small note under the button" value={menu.bundles.note} onChange={(note) => set({ bundles: { ...menu.bundles, note } })} />
+        </AdminGrid>
+        <AdminGrid>
+          <TextField label="“Add to bundle” label" value={menu.bundles.addLabel} onChange={(addLabel) => set({ bundles: { ...menu.bundles, addLabel } })} />
+          <TextField label="“Already in bundle” label" value={menu.bundles.addedLabel} onChange={(addedLabel) => set({ bundles: { ...menu.bundles, addedLabel } })} />
+        </AdminGrid>
+        <AdminGrid>
+          <TextField label="Summary panel eyebrow" value={menu.bundles.summaryEyebrow} onChange={(summaryEyebrow) => set({ bundles: { ...menu.bundles, summaryEyebrow } })} />
+          <TextField label="Summary heading when empty" value={menu.bundles.emptyHeading} onChange={(emptyHeading) => set({ bundles: { ...menu.bundles, emptyHeading } })} />
+        </AdminGrid>
+        <TextAreaField label="Summary note when empty" value={menu.bundles.emptyNote} onChange={(emptyNote) => set({ bundles: { ...menu.bundles, emptyNote } })} />
+      </AdminSection>
     </>
   );
 }
@@ -1099,6 +1241,36 @@ function ReviewsTab() {
           <ImageField label="Hero background image" value={reviews.heroImage} onChange={(heroImage) => actions.updateReviews((current) => ({ ...current, heroImage }))} />
         </AdminGrid>
         <TextAreaField label="Intro paragraph" value={reviews.heroText} onChange={(heroText) => actions.updateReviews((current) => ({ ...current, heroText }))} />
+      </AdminSection>
+
+      <AdminSection
+        title="Review page polaroids"
+        description="The floating photo cards beside the “leave a review” form."
+      >
+        <AdminGrid>
+          <SelectField
+            label="Main card photo (product)"
+            value={reviews.visualOneId}
+            options={draft.products.map((product) => ({ value: product.id, label: product.name || product.id }))}
+            onChange={(visualOneId) => actions.updateReviews((current) => ({ ...current, visualOneId }))}
+          />
+          <TextField
+            label="Main card caption"
+            value={reviews.visualCaptionOne}
+            onChange={(visualCaptionOne) => actions.updateReviews((current) => ({ ...current, visualCaptionOne }))}
+          />
+          <SelectField
+            label="Side card photo (product)"
+            value={reviews.visualTwoId}
+            options={draft.products.map((product) => ({ value: product.id, label: product.name || product.id }))}
+            onChange={(visualTwoId) => actions.updateReviews((current) => ({ ...current, visualTwoId }))}
+          />
+          <TextField
+            label="Side card caption"
+            value={reviews.visualCaptionTwo}
+            onChange={(visualCaptionTwo) => actions.updateReviews((current) => ({ ...current, visualCaptionTwo }))}
+          />
+        </AdminGrid>
       </AdminSection>
 
       <AdminSection title="Review form" description="The labels and messages of the form visitors use to leave reviews.">

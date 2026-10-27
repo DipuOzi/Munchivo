@@ -1,6 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductCard } from "../components/ProductCard";
+import { OffersSection } from "../components/OffersSection";
+import { BundleSection } from "../components/BundleSection";
 import { Reveal } from "../components/PageElements";
 import { useCart } from "../context/CartContext";
 import { useContent } from "../context/ContentContext";
@@ -35,14 +37,19 @@ export function MenuPage() {
               <ProductCard key={product.id} product={product} index={index} showQuantity />
             ))}
           </div>
-          <Reveal className="menu-bottom-link">
-            <span>{menu.bottomHeading}</span>
-            <Link to="/order" className="text-link text-link--dark">
-              {menu.bottomLinkLabel}{itemCount > 0 ? ` (${itemCount})` : ""} <ArrowUpRight size={19} aria-hidden="true" />
-            </Link>
-          </Reveal>
         </div>
       </section>
+
+      <OffersSection />
+
+      <BundleSection>
+        <Reveal className="menu-bottom-link">
+          <span>{menu.bottomHeading}</span>
+          <Link to="/order" className="text-link text-link--dark">
+            {menu.bottomLinkLabel}{itemCount > 0 ? ` (${itemCount})` : ""} <ArrowUpRight size={19} aria-hidden="true" />
+          </Link>
+        </Reveal>
+      </BundleSection>
     </>
   );
 }

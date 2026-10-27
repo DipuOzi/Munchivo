@@ -20,7 +20,7 @@
       "description": "A hearty box built for your biggest street-food craving.",
       "image": "/uploads/img-mvfdgki0-fya8wz.webp",
       "imageAlt": "A takeaway box of grilled meat on a food cart counter",
-      "price": 250
+      "price": 100
     },
     {
       "id": "mini-burger",
@@ -102,6 +102,10 @@
     "reviewPlaceholder": "How was it? Keep it honest.",
     "submitLabel": "Post my review",
     "successNote": "Thank you — your review is on the wall.",
+    "visualOneId": "masala-tea",
+    "visualTwoId": "pasta",
+    "visualCaptionOne": "From the cart",
+    "visualCaptionTwo": "Made fresh daily",
     "list": [
       {
         "id": "pr-mvkptftp-oqfxg",
@@ -253,7 +257,36 @@
       "sectionTitle": "All the good stuff.",
       "sectionText": "Pick your quantity, add to your order, or send a single item straight to WhatsApp.",
       "bottomHeading": "Found what you are looking for?",
-      "bottomLinkLabel": "Review your order"
+      "bottomLinkLabel": "Review your order",
+      "offers": {
+        "eyebrow": "SPECIAL OFFERS",
+        "titleLine1": "Buy more.",
+        "titleLine2": "Pay less.",
+        "text": "Deal prices on the menu favorites. Pick your quantity deal and check out on WhatsApp — the savings are already in the message.",
+        "ctaLabel": "Get this offer",
+        "items": [
+          { "productId": "masala-tea", "quantity": 3, "dealPrice": 150 },
+          { "productId": "pasta", "quantity": 3, "dealPrice": 210 },
+          { "productId": "meatbox", "quantity": 2, "dealPrice": 180 }
+        ]
+      },
+      "bundles": {
+        "eyebrow": "BUILD YOUR BUNDLE",
+        "titleLine1": "Make your own",
+        "titleLine2": "bundle.",
+        "text": "Choose the items you want in one go and the price updates itself: 3 different items get 10% off, and 4 different items get 13% off.",
+        "tiers": [
+          { "count": 3, "discountPercent": 10 },
+          { "count": 4, "discountPercent": 13 }
+        ],
+        "addLabel": "Add to bundle",
+        "addedLabel": "In the bundle",
+        "summaryEyebrow": "YOUR PICKS",
+        "emptyHeading": "Nothing yet",
+        "emptyNote": "Your bundle is empty — tap items on the left to add them.",
+        "ctaLabel": "Order this bundle",
+        "note": "Totals update as you pick. The WhatsApp message carries your bundle price."
+      }
     },
     "about": {
       "heroImage": "/images/cart-experience.jpg",

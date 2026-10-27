@@ -40,6 +40,30 @@ export function TextField({
   );
 }
 
+export function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  hint?: string;
+}) {
+  return (
+    <Field label={label} hint={hint}>
+      <select className="adm-input" value={value} onChange={(event) => onChange(event.target.value)}>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
 export function TextAreaField({
   label,
   value,

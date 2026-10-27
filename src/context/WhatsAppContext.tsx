@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { buildOrderMessage, openWhatsApp } from "../lib/order";
+import { buildBundleMessage, buildDealMessage, buildOrderMessage, openWhatsApp } from "../lib/order";
 import { buildContactMessage, buildSingleProductMessage } from "../lib/whatsapp";
 import { useContent } from "./ContentContext";
 import type { Product } from "../data/products";
@@ -9,6 +9,8 @@ type WhatsAppContextValue = {
   openContact: () => void;
   openCheckout: (entries: CartEntry[]) => void;
   openProductOrder: (product: Product, quantity: number) => void;
+  openDealOrder: (deal: { product: Product; quantity: number; dealPrice: number }) => void;
+  openBundleOrder: (entries: CartEntry[], discountRate: number) => void;
 };
 
 const WhatsAppContext = createContext<WhatsAppContextValue | null>(null);
@@ -25,6 +27,11 @@ export function WhatsAppProvider({ children }: { children: ReactNode }) {
       },
       openProductOrder: (product, quantity) =>
         openWhatsApp(buildSingleProductMessage(product, quantity, { currencyLabel, siteName: name }), whatsappNumber),
+      openDealOrder: (deal) =>
+        openWhatsApp(buildDealMessage(deal, { currencyLabel, siteName: name }), whatsappNumber),
+      openBundleOrder: (entries, discountRate) => {
+        if (entries.length) openWhatsApp(buildBundleMessage(entries, discountRate, { currencyLabel, siteName: name }), whatsappNumber);
+      },
     }),
     [name, currencyLabel, whatsappNumber],
   );
