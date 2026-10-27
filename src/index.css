@@ -1240,9 +1240,9 @@ a.social-card:hover .social-icon { color: rgba(243, 239, 230, 0.18); }
 .rvw-visual-card figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 5px 12px; }
 .rvw-visual-card strong { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--dark); }
 .rvw-visual-card figcaption span { flex: none; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(9, 35, 40, 0.55); }
-.rvw-visual-card--main { left: -2%; top: 42%; width: min(60%, 280px); z-index: 2; rotate: -4deg; animation: rvw-bob 5.4s ease-in-out infinite alternate; }
+.rvw-visual-card--main { left: 7%; top: 42%; width: min(60%, 280px); z-index: 2; rotate: -4deg; animation: rvw-bob 5.4s ease-in-out infinite alternate; }
 .rvw-visual-card--main .rvw-visual-media img { aspect-ratio: 1 / 0.92; }
-.rvw-visual-card--side { left: 52%; bottom: 4%; width: min(46%, 215px); z-index: 3; rotate: 5deg; animation: rvw-bob 6.2s ease-in-out -1.6s infinite alternate; }
+.rvw-visual-card--side { left: 57%; bottom: 4%; width: min(42%, 205px); z-index: 3; rotate: 5deg; animation: rvw-bob 6.2s ease-in-out -1.6s infinite alternate; }
 .rvw-visual-card--side .rvw-visual-media img { aspect-ratio: 1 / 1.12; }
 .rvw-visual-star {
   position: absolute; right: 5%; top: 5%; display: grid; place-items: center;
